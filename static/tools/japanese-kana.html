@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>假名记忆配对游戏</title>
+    <style>
+      body {
+        font-family: "Soen Grotesk Var SemiLight", "榫黑体可变", Arial, sans-serif;
+        font-weight: 300;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #f0f0f0;
+        margin: 0;
+        min-height: 100vh;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      #title {
+        font-size: 2.5em;
+        margin: 20px 0;
+      }
+
+      #controls {
+        margin: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .get-mode {
+        width: 100%;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      button {
+        padding: 8px 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        background: #2196F3;
+        color: white;
+        transition: opacity 0.3s;
+      }
+
+      button:hover {
+        opacity: 0.8;
+      }
+
+      #game-board {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        max-width: 800px;
+        margin: 20px;
+      }
+
+      .card {
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        font-size: 2em;
+        user-select: none;
+      }
+
+      .front {
+        background: #4CAF50;
+        color: white;
+      }
+
+      .back {
+        background: white;
+        color: #333;
+        transform: rotateY(180deg);
+      }
+
+      .card.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card.matched {
+        cursor: default;
+        opacity: 0.5;
+        transform: rotateY(180deg) !important;
+      }
+
+      #stats {
+        margin-top: 20px;
+        font-size: 1.2em;
+        display: flex;
+        gap: 20px;
+        background: #bfbfbf;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .switch-style {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        margin: 10px;
+      }
+
+      .night-mode {
+        background: #333;
+        color: white;
+      }
+
+      .firework {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: explode 0.8s ease-out forwards;
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      @keyframes explode {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0);
+        }
+
+        100% {
+          opacity: 0;
+          transform: translate(var(--tx), var(--ty));
+        }
+      }
+
+      #mode-display {
+        padding: 8px 16px;
+        background: #FF9800;
+        color: white;
+        border-radius: 4px;
+        min-width: 120px;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .difficulty-btn.active {
+        background: #FF9800;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="title">假名消消乐</div>
+    <div id="controls">
+      <div class="get-mode"><span id="mode-display">请选择模式</span></div>
+      <div class="get-mode info">👉请先点选你需要测试的假名行，然后选择模式。卡片显示时间默认为简单。👈</div>
+      <div class="get-mode">
+        <label><input type="checkbox" class="line-checkbox" value="あ">あ行</label>
+        <label><input type="checkbox" class="line-checkbox" value="か">か行</label>
+        <label><input type="checkbox" class="line-checkbox" value="さ">さ行</label>
+        <label><input type="checkbox" class="line-checkbox" value="た">た行</label>
+        <label><input type="checkbox" class="line-checkbox" value="な">な行</label>
+        <label><input type="checkbox" class="line-checkbox" value="は">は行</label>
+        <label><input type="checkbox" class="line-checkbox" value="ま">ま行</label>
+        <label><input type="checkbox" class="line-checkbox" value="や">や行</label>
+        <label><input type="checkbox" class="line-checkbox" value="ら">ら行</label>
+        <label><input type="checkbox" class="line-checkbox" value="わ">わ行</label>
+        <label><input type="checkbox" class="line-checkbox" value="ん">ん</label>
+      </div>
+      <div>
+        <button onclick="setMode('hiragana')">平假名</button>
+        <button onclick="setMode('katakana')">片假名</button>
+        <button onclick="setMode('mixed')">混合模式</button>
+      </div>
+      <div class="get-mode">
+        <button class="difficulty-btn" onclick="setDifficulty(5000, this)">简单（5秒）</button>
+        <button class="difficulty-btn" onclick="setDifficulty(3000, this)" autofocus>普通（3秒）</button>
+        <button class="difficulty-btn" onclick="setDifficulty(1000, this)">困难（1秒）</button>
+      </div>
+    </div>
+    <div class="switch-style">
+      <button id="theme-toggle" onclick="toggleTheme()">切换日间/夜间模式</button>
+      <button id="font-toggle" onclick="toggleFont()">切换字体</button>
+    </div>
+    <div id="game-board"></div>
+    <div id="stats">
+      <div>尝试次数: 0</div>
+      <div>已匹配: 0</div><br>
+      <div>剩余: 0</div>
+      <div>计时: <span id="timer">0</span> 秒</div>
+    </div>
+
+    <script>
+      const kanaData = [
+        { hiragana: 'あ', katakana: 'ア', romaji: 'a' },
+        { hiragana: 'い', katakana: 'イ', romaji: 'i' },
+        { hiragana: 'う', katakana: 'ウ', romaji: 'u' },
+        { hiragana: 'え', katakana: 'エ', romaji: 'e' },
+        { hiragana: 'お', katakana: 'オ', romaji: 'o' },
+        { hiragana: 'か', katakana: 'カ', romaji: 'ka' },
+        { hiragana: 'き', katakana: 'キ', romaji: 'ki' },
+        { hiragana: 'く', katakana: 'ク', romaji: 'ku' },
+        { hiragana: 'け', katakana: 'ケ', romaji: 'ke' },
+        { hiragana: 'こ', katakana: 'コ', romaji: 'ko' },
+        { hiragana: 'さ', katakana: 'サ', romaji: 'sa' },
+        { hiragana: 'し', katakana: 'シ', romaji: 'shi' },
+        { hiragana: 'す', katakana: 'ス', romaji: 'su' },
+        { hiragana: 'せ', katakana: 'セ', romaji: 'se' },
+        { hiragana: 'そ', katakana: 'ソ', romaji: 'so' },
+        { hiragana: 'た', katakana: 'タ', romaji: 'ta' },
+        { hiragana: 'ち', katakana: 'チ', romaji: 'chi' },
+        { hiragana: 'つ', katakana: 'ツ', romaji: 'tsu' },
+        { hiragana: 'て', katakana: 'テ', romaji: 'te' },
+        { hiragana: 'と', katakana: 'ト', romaji: 'to' },
+        { hiragana: 'な', katakana: 'ナ', romaji: 'na' },
+        { hiragana: 'に', katakana: 'ニ', romaji: 'ni' },
+        { hiragana: 'ぬ', katakana: 'ヌ', romaji: 'nu' },
+        { hiragana: 'ね', katakana: 'ネ', romaji: 'ne' },
+        { hiragana: 'の', katakana: 'ノ', romaji: 'no' },
+        { hiragana: 'は', katakana: 'ハ', romaji: 'ha' },
+        { hiragana: 'ひ', katakana: 'ヒ', romaji: 'hi' },
+        { hiragana: 'ふ', katakana: 'フ', romaji: 'fu' },
+        { hiragana: 'へ', katakana: 'ヘ', romaji: 'he' },
+        { hiragana: 'ほ', katakana: 'ホ', romaji: 'ho' },
+        { hiragana: 'ま', katakana: 'マ', romaji: 'ma' },
+        { hiragana: 'み', katakana: 'ミ', romaji: 'mi' },
+        { hiragana: 'む', katakana: 'ム', romaji: 'mu' },
+        { hiragana: 'め', katakana: 'メ', romaji: 'me' },
+        { hiragana: 'も', katakana: 'モ', romaji: 'mo' },
+        { hiragana: 'や', katakana: 'ヤ', romaji: 'ya' },
+        { hiragana: 'ゆ', katakana: 'ユ', romaji: 'yu' },
+        { hiragana: 'よ', katakana: 'ヨ', romaji: 'yo' },
+        { hiragana: 'ら', katakana: 'ラ', romaji: 'ra' },
+        { hiragana: 'り', katakana: 'リ', romaji: 'ri' },
+        { hiragana: 'る', katakana: 'ル', romaji: 'ru' },
+        { hiragana: 'れ', katakana: 'レ', romaji: 're' },
+        { hiragana: 'ろ', katakana: 'ロ', romaji: 'ro' },
+        { hiragana: 'わ', katakana: 'ワ', romaji: 'wa' },
+        { hiragana: 'を', katakana: 'ヲ', romaji: 'wo' },
+        { hiragana: 'ん', katakana: 'ン', romaji: 'n' }
+      ];
+
+      let gameActive = false;
+      let currentMode = '';
+      let memoryTime = 3000;
+      let matches = 0;
+      let attempts = 0;
+      let flippedCards = [];
+      let selectedLines = [];
+      let timerInterval;
+      let startTime;
+      let timerStarted = false; // 新增變數，用於判斷計時器是否已啟動
+
+      function startTimer() {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          document.getElementById('timer').textContent = elapsed;
+        }, 1000);
+      }
+
+      function stopTimer() {
+        clearInterval(timerInterval);
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle('night-mode');
+      }
+
+      function toggleFont() {
+        const currentFont = document.body.style.fontFamily;
+        document.body.style.fontFamily = currentFont === 'serif' ? 'Arial, sans-serif' : 'serif';
+      }
+
+      // Set default mode after 2 seconds if no selection is made
+      setTimeout(() => {
+        if (!currentMode) {
+          setMode('hiragana');
+          setDifficulty(5000, document.querySelector('.difficulty-btn:nth-child(1)'));
+        }
+      }, 2000);
+
+      function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('mode-display').textContent =
+          `${getModeName(mode)}模式`;
+        startGame();
+      }
+
+      function getModeName(mode) {
+        return {
+          hiragana: '平假名',
+          katakana: '片假名',
+          mixed: '混合'
+        }[mode];
+      }
+
+      function setDifficulty(ms, btn) {
+        memoryTime = ms;
+        document.querySelectorAll('.difficulty-btn').forEach(b =>
+          b.classList.remove('active'));
+        btn.classList.add('active');
+        if (gameActive) startGame();
+      }
+
+      function startGame() {
+        if (!currentMode) return;
+
+        gameActive = true;
+        matches = 0;
+        attempts = 0;
+        flippedCards = [];
+        selectedLines = getSelectedLines();
+        createBoard();
+        showAllCards();
+        updateStats();
+        timerStarted = false; // 重置計時器狀態
+      }
+
+      function getSelectedLines() {
+        const lines = [];
+        document.querySelectorAll('.line-checkbox:checked').forEach(checkbox => {
+          const line = checkbox.value;
+          switch (line) {
+            case 'あ':
+              lines.push('あ', 'い', 'う', 'え', 'お');
+              break;
+            case 'か':
+              lines.push('か', 'き', 'く', 'け', 'こ');
+              break;
+            case 'さ':
+              lines.push('さ', 'し', 'す', 'せ', 'そ');
+              break;
+            case 'た':
+              lines.push('た', 'ち', 'つ', 'て', 'と');
+              break;
+            case 'な':
+              lines.push('な', 'に', 'ぬ', 'ね', 'の');
+              break;
+            case 'は':
+              lines.push('は', 'ひ', 'ふ', 'へ', 'ほ');
+              break;
+            case 'ま':
+              lines.push('ま', 'み', 'む', 'め', 'も');
+              break;
+            case 'や':
+              lines.push('や', 'ゆ', 'よ');
+              break;
+            case 'ら':
+              lines.push('ら', 'り', 'る', 'れ', 'ろ');
+              break;
+            case 'わ':
+              lines.push('わ', 'を');
+              break;
+            case 'ん':
+              lines.push('ん');
+              break;
+          }
+        });
+        return lines;
+      }
+
+      function createBoard() {
+        const board = document.getElementById('game-board');
+        board.innerHTML = '';
+
+        const cards = [];
+        kanaData.forEach(kana => {
+          if (selectedLines.includes(kana.hiragana)) {
+            if (currentMode === 'hiragana') {
+              cards.push({ value: kana.hiragana, matchValue: kana.romaji });
+              cards.push({ value: kana.hiragana, matchValue: kana.romaji });
+            } else if (currentMode === 'katakana') {
+              cards.push({ value: kana.katakana, matchValue: kana.romaji });
+              cards.push({ value: kana.katakana, matchValue: kana.romaji });
+            } else {
+              cards.push({ value: kana.hiragana, matchValue: kana.romaji });
+              cards.push({ value: kana.katakana, matchValue: kana.romaji });
+            }
+          }
+        });
+
+        shuffleCards(cards);
+
+        cards.forEach(cardData => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.value = cardData.matchValue;
+          card.innerHTML = `
+                    <div class="card-face front"></div>
+                    <div class="card-face back">${cardData.value}</div>
+                `;
+          card.addEventListener('click', handleCardClick);
+          board.appendChild(card);
+        });
+      }
+
+      function shuffleCards(cards) {
+        // Fisher-Yates shuffle algorithm to shuffle the cards
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+
+        // Ensure no two adjacent cards are the same
+        for (let i = 0; i < cards.length - 1; i++) {
+          if (cards[i].value === cards[i + 1].value) {
+            // Find a card to swap that is not the same
+            for (let j = i + 2; j < cards.length; j++) {
+              if (cards[j].value !== cards[i].value) {
+                [cards[i + 1], cards[j]] = [cards[j], cards[i + 1]];
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      function showAllCards() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+          card.classList.add('flipped');
+          card.style.pointerEvents = 'none';
+        });
+
+        setTimeout(() => {
+          cards.forEach(card => {
+            card.classList.remove('flipped');
+            card.style.pointerEvents = 'auto';
+          });
+        }, memoryTime);
+      }
+
+      function handleCardClick(e) {
+        if (!gameActive) return;
+        const card = e.target.closest('.card');
+        if (!card || flippedCards.length === 2 || card.classList.contains('matched')) return;
+
+        // 在第一次點擊卡片時啟動計時器
+        if (!timerStarted) {
+          startTimer();
+          timerStarted = true;
+        }
+
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          attempts++;
+          setTimeout(checkMatch, 800);
+        }
+        updateStats();
+      }
+
+      function checkMatch() {
+        const [card1, card2] = flippedCards;
+        const isMatch = card1.dataset.value === card2.dataset.value;
+
+        if (isMatch) {
+          card1.classList.add('matched');
+          card2.classList.add('matched');
+          createFireworks(card1);
+          createFireworks(card2);
+          matches++;
+          setTimeout(() => {
+            card1.querySelector('.back').textContent = getKanaByRomaji(card1.dataset.value, currentMode);
+            card2.querySelector('.back').textContent = getKanaByRomaji(card2.dataset.value, currentMode);
+          }, 800); // Show matched kana after animation
+        } else {
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+        }
+
+        flippedCards = [];
+        updateStats();
+        checkWin();
+      }
+
+      function getKanaByRomaji(romaji, mode) {
+        const kana = kanaData.find(k => k.romaji === romaji);
+        if (!kana) return '';
+        if (mode === 'hiragana') return kana.hiragana;
+        if (mode === 'katakana') return kana.katakana;
+        return `${kana.hiragana} / ${kana.katakana}`;
+      }
+
+      function createFireworks(sourceCard) {
+        const rect = sourceCard.getBoundingClientRect();
+        const colors = ['#FF0000', '#00FF00', '#FFFF00', '#00FFFF'];
+
+        for (let i = 0; i < 12; i++) {
+          const particle = document.createElement('div');
+          const angle = (Math.PI * 2 * i) / 12;
+          const distance = 80;
+
+          particle.className = 'firework';
+          particle.style.backgroundColor = colors[i % 4];
+          particle.style.left = `${rect.left + rect.width / 2}px`;
+          particle.style.top = `${rect.top + rect.height / 2}px`;
+          particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+          particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+
+          document.body.appendChild(particle);
+          setTimeout(() => particle.remove(), 800);
+        }
+      }
+
+      function updateStats() {
+        const remaining = selectedLines.length * 2 - matches * 2;
+        document.getElementById('stats').innerHTML = `
+                <div>尝试次数: ${attempts}</div>
+                <div>已匹配: ${matches}</div>
+                <div>剩余: ${remaining}</div>
+        <div>计时: <span id="timer">${Math.floor((Date.now() - startTime) / 1000)}</span> 秒</div>
+            `;
+      }
+
+      function checkWin() {
+        if (matches === selectedLines.length) {
+          gameActive = false;
+          stopTimer();
+          setTimeout(() => {
+            alert(`🎉 游戏胜利！\n总尝试次数: ${attempts}\n总耗时: ${Math.floor((Date.now() - startTime) / 1000)} 秒`);
+          }, 500);
+        }
+      }
+
+      // 默认设置普通难度
+      document.querySelector('.difficulty-btn:nth-child(2)').click();
+    </script>
+  </body>
+
+</html>

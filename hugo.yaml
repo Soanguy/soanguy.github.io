@@ -1,0 +1,133 @@
+baseURL: "https://soanguy.github.io/"
+title: "我的 Hextra 网站"
+theme: hextra
+
+enableRobotsTXT: true
+enableGitInfo: false
+hasCJKLanguage: true
+
+outputs:
+  home: [html]
+  page: [html, markdown]
+  section: [html, rss, markdown]
+
+module:
+  hugoVersion:
+    extended: true
+    min: "0.146.0"
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+    extensions:
+      passthrough:
+        delimiters:
+          block: [["$$", "$$"]]
+          inline: [['\(', '\)']]
+        enable: true
+  highlight:
+    noClasses: false
+
+menu:
+  main:
+    - identifier: docs
+      name: 文档
+      pageRef: /docs
+      weight: 1
+    - identifier: posts
+      name: 博客
+      pageRef: /posts
+      weight: 2
+    - identifier: archives
+      name: 归档
+      pageRef: /archives
+      weight: 3
+    - identifier: about
+      name: 关于
+      pageRef: /about
+      weight: 4
+    - name: 搜索
+      weight: 5
+      params:
+        type: search
+    - name: 主题
+      weight: 6
+      params:
+        type: theme-toggle
+    - name: GitHub
+      weight: 7
+      url: "https://github.com/yourname/yourrepo"
+      params:
+        icon: github
+
+params:
+  description: "一个现代化的 Hugo 文档网站"
+  
+  # ZenMode: 设置为 true 禁用噪音效果，设置为 false 或不设置则启用噪音效果
+  ZenMode: false
+  
+  # Archives: 归档页面配置
+  archives:
+    section: posts  # 指定要归档的 section
+    dateFormat: "01-02"  # 日期格式
+
+  banner:
+    message: |
+      欢迎来到我的网站！🎉
+
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/logo.svg
+      dark: images/logo-dark.svg
+    width: wide
+
+  theme:
+    default: system
+    displayToggle: false
+
+  footer:
+    enable: true
+    displayCopyright: true
+    displayPoweredBy: false
+    width: wide
+
+  displayUpdatedDate: true
+  dateFormat: "2006年1月2日"
+
+  search:
+    enable: true
+    type: flexsearch
+    flexsearch:
+      index: content
+      tokenize: forward
+
+  blog:
+    list:
+      displayTags: true
+      sortBy: date
+      sortOrder: desc
+      pagerSize: 10
+    article:
+      displayPagination: true
+
+  toc:
+    displayTags: true
+
+  highlight:
+    copy:
+      enable: true
+      display: hover
+
+  page:
+    width: normal
+    contextMenu:
+      enable: true
+
+  imageZoom:
+    enable: true
+
+  comments:
+    enable: false

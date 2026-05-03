@@ -1,0 +1,14 @@
+{{- /* 引入榫黑体可变字体 */ -}}
+<link href="https://fontsapi.zeoseven.com/821/main/result.css" onload="this.rel='stylesheet'" rel="preload" as="style"
+  crossorigin />
+<noscript>
+  <link rel="stylesheet" href="https://fontsapi.zeoseven.com/821/main/result.css" />
+</noscript>
+
+{{- /* 噪音效果 */ -}}
+{{- if not site.Params.ZenMode -}}
+{{- $js := resources.Get "js/grain-effect.js" -}}
+{{- if $js -}}
+<script src="{{ $js.RelPermalink }}" defer></script>
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,189 @@
+# Kopi 主题完整配置示例
+
+baseURL: 'https://yourdomain.com/'
+languageCode: 'zh-CN'
+title: '我的网站'
+theme: 'kopi'
+
+# ========================================
+# 基础配置
+# ========================================
+
+# 默认语言
+defaultContentLanguage: 'zh-cn'
+
+# 分页
+paginate: 10
+
+# 摘要长度
+summaryLength: 70
+
+# 启用 Emoji
+enableEmoji: true
+
+# 启用 Git 信息
+enableGitInfo: false
+
+# ========================================
+# 主题参数配置
+# ========================================
+
+params:
+  # 网站副标题
+  subtitle: '一个现代化、快速、响应式的 Hugo 主题'
+  
+  # 作者信息
+  author:
+    name: "张三"
+    bio: "全栈开发工程师，热爱开源技术和写作。"
+    link: "/about"
+    role: "高级开发工程师"
+    # 可选字段
+    # avatar: "/images/avatar.jpg"
+    # email: "your@email.com"
+    # location: "北京，中国"
+    # website: "https://yourwebsite.com"
+    # social:
+    #   github: "yourusername"
+    #   twitter: "yourusername"
+    #   linkedin: "yourusername"
+
+# ========================================
+# 菜单配置
+# ========================================
+
+menus:
+  main:
+    # 首页
+    - name: '首页'
+      pageRef: '/'
+      weight: 10
+    
+    # 博客
+    - name: '博客'
+      pageRef: '/blog'
+      weight: 20
+    
+    # 文档
+    - name: '文档'
+      pageRef: '/docs'
+      weight: 30
+    
+    # 文章
+    - name: '文章'
+      pageRef: '/posts'
+      weight: 40
+    
+    # 关于
+    - name: '关于'
+      pageRef: '/about'
+      weight: 50
+    
+    # 示例：带下拉菜单
+    # - name: '主题'
+    #   identifier: 'topics'
+    #   url: '#'
+    #   weight: 20
+    # 
+    # - name: 'Hugo'
+    #   parent: 'topics'
+    #   pageRef: '/hugo'
+    #   weight: 10
+    # 
+    # - name: 'Web 开发'
+    #   parent: 'topics'
+    #   pageRef: '/web-dev'
+    #   weight: 20
+
+# ========================================
+# Hugo 版本要求
+# ========================================
+
+module:
+  hugoVersion:
+    extended: true
+    min: '0.146.0'
+
+# ========================================
+# Markdown 配置
+# ========================================
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true  # 允许 HTML 标签
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    style: "monokai"
+
+# ========================================
+# Radio 功能配置
+# ========================================
+
+# 媒体类型
+mediaTypes:
+  application/radio+json:
+    suffixes:
+      - json
+
+# 输出格式
+outputFormats:
+  RADIO:
+    mediaType: application/radio+json
+    baseName: radio
+    isPlainText: true
+    notAlternative: true
+
+# 输出配置
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON      # 搜索功能
+    # - RADIO     # Radio 功能（移除此行可禁用）
+  page:
+    - HTML
+  section:
+    - HTML
+    - RSS
+
+# ========================================
+# 性能优化配置（可选）
+# ========================================
+
+# 缓存配置
+# caches:
+#   getresource:
+#     dir: ':cacheDir/:project'
+#     maxAge: '30m'
+
+# 压缩配置
+# minify:
+#   tdewolff:
+#     html:
+#       keepWhitespace: false
+
+# ========================================
+# 其他配置（可选）
+# ========================================
+
+# 禁用特定输出
+# disableKinds:
+#   - RSS
+#   - taxonomy
+#   - term
+
+# 相关内容推荐
+# related:
+#   threshold: 80
+#   includeNewer: true
+#   toLower: false
+#   indices:
+#     - name: tags
+#       weight: 100
+#     - name: categories
+#       weight: 80
+#     - name: date
+#       weight: 10

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语假名智能练习</title>
+    <style>
+      /* 新增响应式布局样式 */
+      .container {
+        display: grid;
+        gap: 2rem;
+        padding: 1rem;
+      }
+
+      /* 电脑布局 */
+      @media (min-width: 768px) {
+        .container {
+          grid-template-columns: 300px 1fr;
+          align-items: start;
+        }
+
+        .left-column {
+          position: sticky;
+          top: 1rem;
+        }
+      }
+
+      /* 手机布局 */
+      @media (max-width: 767px) {
+        .container {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          padding: 0px;
+        }
+
+        .card {
+          margin: 0.5rem 0;
+        }
+      }
+
+      :root {
+        --primary-color: #4a90e2;
+        --success-color: #34d399;
+        --error-color: #ef4444;
+        --card-bg: #ffffff;
+        --bg-color: #f3f4f6;
+        --text-color: #333;
+        --secondary-color:rgba(52, 211, 153, 0.05);
+      }
+
+      [data-theme="dark"] {
+        --primary-color: #6aa1ff;
+        --success-color: #2ecc71;
+        --error-color: #e74c3c;
+        --card-bg: #2d2d2d;
+        --bg-color: #1a1a1a;
+        --text-color: #fff;
+        --secondary-color:rgba(52, 211, 153, 0.05);
+      }
+
+      body {
+        font-family: "Soen Grotesk Var SemiLight", "榫黑体可变", system-ui, -apple-system, sans-serif;
+        font-weight: 300;
+        background: var(--bg-color);
+        color: var(--text-color);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        transition: background 0.3s ease;
+      }
+
+      #themeToggle {
+        /* position: absolute;
+        right: 20px;
+        top: 20px; */
+        padding: 8px 16px;
+        border-radius: 20px;
+      }
+
+      /* 弹窗样式 */
+      .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .dialog-content {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .dialog-buttons {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin: 1rem 0;
+      }
+
+      .title {
+        text-align: center;
+      }
+
+      .config-section {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      #kana-display {
+        font-size: 8rem;
+        text-align: center;
+        margin: 2rem 0;
+        background: linear-gradient(135deg, var(--primary-color), #2b6cb0);
+        -webkit-background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(74, 144, 226, 0.3));
+      }
+
+      .score-board {
+        display: flex;
+        justify-content: space-around;
+        padding: 1rem;
+        background: var(--secondary-color);
+        border-radius: 0.5rem;
+        border: 2px solid var(--success-color);
+      }
+
+      .timer {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        text-align: center;
+      }
+
+      #input-section {
+        margin: 1rem auto;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        width: fit-content;
+        flex-wrap: wrap;
+        grid-template-columns: 2fr 1fr 2fr;
+      }
+
+      #input-section .button {
+        margin: 0.5rem 0.5rem;
+      }
+
+      input#answer {
+        width: 200px;
+        padding: 0.8rem 1.2rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+
+      input#answer:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        outline: none;
+      }
+
+      button {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 0.75rem;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(74, 144, 226, 0.3);
+      }
+
+      .pool-container {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
+      .pool {
+        padding: 1rem;
+        border-radius: 0.75rem;
+      }
+
+      #correct-pool {
+        border: 2px solid var(--success-color);
+        background: rgba(52, 211, 153, 0.05);
+      }
+
+      #error-pool {
+        border: 2px solid var(--error-color);
+        background: var(--secondary-color);
+      }
+
+      .kana-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border-radius: 0.5rem;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      @keyframes flip {
+        0% {
+          transform: rotateY(0deg);
+        }
+
+        50% {
+          transform: rotateY(90deg);
+        }
+
+        100% {
+          transform: rotateY(0deg);
+        }
+      }
+
+      /* 新增行选择样式 */
+      .row-selector {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 8px;
+        margin: 10px 0;
+      }
+
+      .row-item {
+        display: flex;
+        align-items: center;
+      }
+
+      .row-item label {
+        margin-left: 5px;
+        font-size: 0.9em;
+      }
+
+      .feedback-message {
+        margin-top: 1rem;
+        padding: 0.8rem 1.2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feedback-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .correct-feedback {
+        background: rgba(52, 211, 153, 0.1);
+        color: var(--success-color);
+        border: 2px solid var(--success-color);
+      }
+
+      .error-feedback {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error-color);
+        border: 2px solid var(--error-color);
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .encouragement {
+        font-size: 0.9em;
+        text-align: center;
+        color: #666;
+        margin-top: 0.5rem;
+        animation: bounce 1s ease infinite;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- 左列 -->
+      <div class="left-column">
+        <div class="card title">
+          <h1>日语假名智能练习</h1>
+          <button id="themeToggle">🌙 夜间模式</button>
+        </div>
+        <div class="card">
+          <div class="config-section">
+            <div>
+              <label
+                >测试类型：
+                <select id="testType">
+                  <option value="kana2romaji">假名 → 罗马字</option>
+                  <option value="romaji2kana">罗马字 → 假名</option>
+                </select>
+              </label>
+            </div>
+
+            <div>
+              <label
+                >　　难度：
+                <select id="difficulty">
+                  <option value="easy">简单（不限时）</option>
+                  <option value="normal">普通（30秒）</option>
+                  <option value="hard">困难（10秒）</option>
+                </select>
+              </label>
+            </div>
+            <div>
+              <label
+                >假名类型：
+                <select id="kanaType">
+                  <option value="hiragana" selected>平假名</option>
+                  <option value="katakana">片假名</option>
+                  <option value="all">全部</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>选择练习行：</div>
+          <div class="row-selector" id="rowSelector">
+            <!-- 选项将通过JavaScript动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 右列 -->
+      <div class="right-column">
+        <div class="card score-board">
+          <div>当前得分：<span id="score">0</span></div>
+          <div>连续正确：<span id="combo">0</span> 连击</div>
+        </div>
+
+        <div class="card">
+          <div class="timer" id="timer"></div>
+          <div id="kana-display"></div>
+
+          <div id="input-section">
+            <input
+              class="button"
+              type="text"
+              id="answer"
+              placeholder="输入答案"
+              autocomplete="off"
+            />
+            <button class="button" onclick="checkAnswer()">提交</button>
+            <button class="button" onclick="restartGame()">重新开始</button>
+          </div>
+
+          <div>
+            <div id="feedback" class="feedback-message"></div>
+            <div id="encouragement" class="encouragement"></div>
+          </div>
+        </div>
+
+        <div class="pool-container">
+          <div class="card pool" id="correct-pool">
+            <h3>✅ 已掌握（<span id="correct-count">0</span>）</h3>
+            <div id="correct-list"></div>
+          </div>
+
+          <div class="card pool" id="error-pool">
+            <h3>❌ 需复习（<span id="error-count">0</span>）</h3>
+            <div id="error-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 新增主题切换逻辑
+      function toggleTheme() {
+        const body = document.body;
+        const isDark = body.getAttribute("data-theme") === "dark";
+        body.setAttribute("data-theme", isDark ? "light" : "dark");
+        localStorage.setItem("theme", isDark ? "light" : "dark");
+        document.getElementById("themeToggle").textContent = isDark
+          ? "🌙 夜间模式"
+          : "☀️ 日间模式";
+      }
+
+      // 初始化主题
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.body.setAttribute("data-theme", savedTheme);
+      document.getElementById("themeToggle").textContent =
+        savedTheme === "dark" ? "☀️ 日间模式" : "🌙 夜间模式";
+      document
+        .getElementById("themeToggle")
+        .addEventListener("click", toggleTheme);
+
+      // 完整假名数据集
+      const kanaData = [
+        // 平假名
+        { kana: "あ", romaji: "a", type: "hiragana", row: "a" },
+        { kana: "い", romaji: "i", type: "hiragana", row: "a" },
+        { kana: "う", romaji: "u", type: "hiragana", row: "a" },
+        { kana: "え", romaji: "e", type: "hiragana", row: "a" },
+        { kana: "お", romaji: "o", type: "hiragana", row: "a" },
+        { kana: "か", romaji: "ka", type: "hiragana", row: "ka" },
+        { kana: "き", romaji: "ki", type: "hiragana", row: "ka" },
+        { kana: "く", romaji: "ku", type: "hiragana", row: "ka" },
+        { kana: "け", romaji: "ke", type: "hiragana", row: "ka" },
+        { kana: "こ", romaji: "ko", type: "hiragana", row: "ka" },
+        { kana: "さ", romaji: "sa", type: "hiragana", row: "sa" },
+        { kana: "し", romaji: "shi", type: "hiragana", row: "sa" },
+        { kana: "す", romaji: "su", type: "hiragana", row: "sa" },
+        { kana: "せ", romaji: "se", type: "hiragana", row: "sa" },
+        { kana: "そ", romaji: "so", type: "hiragana", row: "sa" },
+        { kana: "た", romaji: "ta", type: "hiragana", row: "ta" },
+        { kana: "ち", romaji: "chi", type: "hiragana", row: "ta" },
+        { kana: "つ", romaji: "tsu", type: "hiragana", row: "ta" },
+        { kana: "て", romaji: "te", type: "hiragana", row: "ta" },
+        { kana: "と", romaji: "to", type: "hiragana", row: "ta" },
+        { kana: "な", romaji: "na", type: "hiragana", row: "na" },
+        { kana: "に", romaji: "ni", type: "hiragana", row: "na" },
+        { kana: "ぬ", romaji: "nu", type: "hiragana", row: "na" },
+        { kana: "ね", romaji: "ne", type: "hiragana", row: "na" },
+        { kana: "の", romaji: "no", type: "hiragana", row: "na" },
+        { kana: "は", romaji: "ha", type: "hiragana", row: "ha" },
+        { kana: "ひ", romaji: "hi", type: "hiragana", row: "ha" },
+        { kana: "ふ", romaji: "fu", type: "hiragana", row: "ha" },
+        { kana: "へ", romaji: "he", type: "hiragana", row: "ha" },
+        { kana: "ほ", romaji: "ho", type: "hiragana", row: "ha" },
+        { kana: "ま", romaji: "ma", type: "hiragana", row: "ma" },
+        { kana: "み", romaji: "mi", type: "hiragana", row: "ma" },
+        { kana: "む", romaji: "mu", type: "hiragana", row: "ma" },
+        { kana: "め", romaji: "me", type: "hiragana", row: "ma" },
+        { kana: "も", romaji: "mo", type: "hiragana", row: "ma" },
+        { kana: "や", romaji: "ya", type: "hiragana", row: "ya" },
+        { kana: "ゆ", romaji: "yu", type: "hiragana", row: "ya" },
+        { kana: "よ", romaji: "yo", type: "hiragana", row: "ya" },
+        { kana: "ら", romaji: "ra", type: "hiragana", row: "ra" },
+        { kana: "り", romaji: "ri", type: "hiragana", row: "ra" },
+        { kana: "る", romaji: "ru", type: "hiragana", row: "ra" },
+        { kana: "れ", romaji: "re", type: "hiragana", row: "ra" },
+        { kana: "ろ", romaji: "ro", type: "hiragana", row: "ra" },
+        { kana: "わ", romaji: "wa", type: "hiragana", row: "wa" },
+        { kana: "を", romaji: "wo", type: "hiragana", row: "wa" },
+        { kana: "ん", romaji: "n", type: "hiragana", row: "wa" },
+
+        // 片假名
+        { kana: "ア", romaji: "a", type: "katakana", row: "a" },
+        { kana: "イ", romaji: "i", type: "katakana", row: "a" },
+        { kana: "ウ", romaji: "u", type: "katakana", row: "a" },
+        { kana: "エ", romaji: "e", type: "katakana", row: "a" },
+        { kana: "オ", romaji: "o", type: "katakana", row: "a" },
+        { kana: "カ", romaji: "ka", type: "katakana", row: "ka" },
+        { kana: "キ", romaji: "ki", type: "katakana", row: "ka" },
+        { kana: "ク", romaji: "ku", type: "katakana", row: "ka" },
+        { kana: "ケ", romaji: "ke", type: "katakana", row: "ka" },
+        { kana: "コ", romaji: "ko", type: "katakana", row: "ka" },
+        { kana: "サ", romaji: "sa", type: "katakana", row: "sa" },
+        { kana: "シ", romaji: "shi", type: "katakana", row: "sa" },
+        { kana: "ス", romaji: "su", type: "katakana", row: "sa" },
+        { kana: "セ", romaji: "se", type: "katakana", row: "sa" },
+        { kana: "ソ", romaji: "so", type: "katakana", row: "sa" },
+        { kana: "タ", romaji: "ta", type: "katakana", row: "ta" },
+        { kana: "チ", romaji: "chi", type: "katakana", row: "ta" },
+        { kana: "ツ", romaji: "tsu", type: "katakana", row: "ta" },
+        { kana: "テ", romaji: "te", type: "katakana", row: "ta" },
+        { kana: "ト", romaji: "to", type: "katakana", row: "ta" },
+        { kana: "ナ", romaji: "na", type: "katakana", row: "na" },
+        { kana: "ニ", romaji: "ni", type: "katakana", row: "na" },
+        { kana: "ヌ", romaji: "nu", type: "katakana", row: "na" },
+        { kana: "ネ", romaji: "ne", type: "katakana", row: "na" },
+        { kana: "ノ", romaji: "no", type: "katakana", row: "na" },
+        { kana: "ハ", romaji: "ha", type: "katakana", row: "ha" },
+        { kana: "ヒ", romaji: "hi", type: "katakana", row: "ha" },
+        { kana: "フ", romaji: "fu", type: "katakana", row: "ha" },
+        { kana: "ヘ", romaji: "he", type: "katakana", row: "ha" },
+        { kana: "ホ", romaji: "ho", type: "katakana", row: "ha" },
+        { kana: "マ", romaji: "ma", type: "katakana", row: "ma" },
+        { kana: "ミ", romaji: "mi", type: "katakana", row: "ma" },
+        { kana: "ム", romaji: "mu", type: "katakana", row: "ma" },
+        { kana: "メ", romaji: "me", type: "katakana", row: "ma" },
+        { kana: "モ", romaji: "mo", type: "katakana", row: "ma" },
+        { kana: "ヤ", romaji: "ya", type: "katakana", row: "ya" },
+        { kana: "ユ", romaji: "yu", type: "katakana", row: "ya" },
+        { kana: "ヨ", romaji: "yo", type: "katakana", row: "ya" },
+        { kana: "ラ", romaji: "ra", type: "katakana", row: "ra" },
+        { kana: "リ", romaji: "ri", type: "katakana", row: "ra" },
+        { kana: "ル", romaji: "ru", type: "katakana", row: "ra" },
+        { kana: "レ", romaji: "re", type: "katakana", row: "ra" },
+        { kana: "ロ", romaji: "ro", type: "katakana", row: "ra" },
+        { kana: "ワ", romaji: "wa", type: "katakana", row: "wa" },
+        { kana: "ヲ", romaji: "wo", type: "katakana", row: "wa" },
+        { kana: "ン", romaji: "n", type: "katakana", row: "wa" },
+      ];
+
+      // 行配置数据
+      const rowConfig = [
+        { id: "a", name: "あ行" },
+        { id: "ka", name: "か行" },
+        { id: "sa", name: "さ行" },
+        { id: "ta", name: "た行" },
+        { id: "na", name: "な行" },
+        { id: "ha", name: "は行" },
+        { id: "ma", name: "ま行" },
+        { id: "ya", name: "や行" },
+        { id: "ra", name: "ら行" },
+        { id: "wa", name: "わ行" },
+      ];
+
+      // 游戏状态管理
+      let currentKana;
+      let practiceQueue = [];
+      let usedKanas = new Set();
+      let errorPool = [];
+      let correctPool = [];
+      let score = 0;
+      let combo = 0;
+      let timer;
+      let timeLeft = 0;
+      let totalElapsed = 0;
+      let startTime = null;
+      let timerInterval = null;
+
+      function initGame() {
+        practiceQueue = getFilteredKanas();
+        shuffleArray(practiceQueue);
+        usedKanas.clear();
+        errorPool = [];
+        correctPool = [];
+        score = 0;
+        combo = 0;
+        updateScore();
+        startTimer(); // 初始化时启动新计时器
+        nextQuestion();
+
+        // 确保启用输入
+        document.getElementById("answer").disabled = false;
+        document.querySelector(
+          'button[onclick="checkAnswer()"]'
+        ).disabled = false;
+      }
+
+      // 初始化行选择器（事件处理逻辑调整）
+      function initRowSelector() {
+        const container = document.getElementById("rowSelector");
+        container.innerHTML = `
+          <div class="row-item">
+              <input type="checkbox" id="row_all" checked>
+              <label for="row_all">全部</label>
+          </div>
+          ${rowConfig
+            .map(
+              (row) => `
+              <div class="row-item">
+                  <input type="checkbox" id="row_${row.id}" name="row" value="${row.id}">
+                  <label for="row_${row.id}">${row.name}</label>
+              </div>
+          `
+            )
+            .join("")}
+        `;
+
+        // 全选事件
+        document
+          .getElementById("row_all")
+          .addEventListener("change", function () {
+            const checkboxes = document.querySelectorAll('input[name="row"]');
+            checkboxes.forEach((cb) => (cb.checked = this.checked));
+            restartGame();
+          });
+
+        // 单行选择事件
+        document.querySelectorAll('input[name="row"]').forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const allCheckbox = document.getElementById("row_all");
+            const rowCheckboxes =
+              document.querySelectorAll('input[name="row"]');
+            const allChecked = Array.from(rowCheckboxes).every(
+              (cb) => cb.checked
+            );
+
+            // 当选中某行时，检查是否所有行已选中
+            if (this.checked && allChecked) {
+              allCheckbox.checked = true;
+            } else if (!this.checked) {
+              allCheckbox.checked = false;
+            }
+
+            restartGame();
+          });
+        });
+      }
+
+      function getSelectedKanaTypes() {
+        const selectedTypes = Array.from(
+          document.querySelectorAll("#kanaType option:checked")
+        ).map((option) => option.value);
+
+        // 如果選擇了「全部」，返回所有類型
+        if (selectedTypes.includes("all")) {
+          return ["hiragana", "katakana"];
+        }
+
+        return selectedTypes;
+      }
+
+      // 获取选中的行
+      function getSelectedRows() {
+        const selected = Array.from(
+          document.querySelectorAll('input[name="row"]:checked')
+        ).map((cb) => cb.value);
+        const allSelected = document.getElementById("row_all").checked;
+        return allSelected ? ["all"] : selected;
+      }
+
+      function getFilteredKanas() {
+        const selectedTypes = getSelectedKanaTypes();
+        const selectedRows = getSelectedRows();
+
+        return kanaData.filter(
+          (k) =>
+            selectedTypes.includes(k.type) &&
+            (selectedRows.includes("all") || selectedRows.includes(k.row))
+        );
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function getNextKana() {
+        // 优先从未使用的假名中选择
+        const remaining = practiceQueue.filter((k) => !usedKanas.has(k.kana));
+        if (remaining.length === 0) {
+          practiceQueue = getFilteredKanas();
+          shuffleArray(practiceQueue);
+          usedKanas.clear();
+        }
+        currentKana = practiceQueue.pop();
+        usedKanas.add(currentKana.kana);
+        return currentKana;
+      }
+
+      function startTimer() {
+        const difficulty = document.getElementById("difficulty").value;
+
+        // 清除现有计时器
+        if (timerInterval) clearInterval(timerInterval);
+
+        // 启用输入元素
+        document.getElementById("answer").disabled = false;
+        document.querySelector(
+          'button[onclick="checkAnswer()"]'
+        ).disabled = false;
+
+        if (difficulty === "easy") {
+          totalElapsed = 0; // 重置累计时间
+          document.getElementById("timer").textContent = "已用时间：0秒";
+          timerInterval = setInterval(() => {
+            totalElapsed++;
+            document.getElementById(
+              "timer"
+            ).textContent = `已用时间：${totalElapsed}秒`;
+          }, 1000);
+        } else {
+          timeLeft = difficulty === "normal" ? 30 : 10; // 设置初始时间
+          document.getElementById(
+            "timer"
+          ).textContent = `剩余时间：${timeLeft}秒`;
+          timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById(
+              "timer"
+            ).textContent = `剩余时间：${timeLeft}秒`;
+            if (timeLeft <= 0) {
+              handleTimeout();
+            }
+          }, 1000);
+        }
+      }
+
+      function showRestartDialog() {
+        const dialog = document.createElement("div");
+        dialog.className = "dialog-overlay";
+        dialog.innerHTML = `
+          <div class="dialog-content">
+            <h3>重新开始游戏？</h3>
+            <p>当前得分：${score}</p>
+            <p>最高连击：${combo}</p>
+            ${
+              errorPool.length
+                ? `<p>上次错误：${errorPool
+                    .slice(-3)
+                    .map((e) => `${e.kana}→${e.romaji}`)
+                    .join(", ")}</p>`
+                : ""
+            }
+            <div class="dialog-buttons">
+              <button onclick="this.closest('.dialog-overlay').remove()">取消</button>
+              <button onclick="this.closest('.dialog-overlay').remove(); initGame()">重新开始</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(dialog);
+      }
+
+      function handleTimeout() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+
+        // 禁用输入和提交按钮
+        document.getElementById("answer").disabled = true;
+        document.querySelector(
+          'button[onclick="checkAnswer()"]'
+        ).disabled = true;
+
+        const summaryBox = document.createElement("div");
+        summaryBox.style.position = "fixed";
+        summaryBox.style.top = "50%";
+        summaryBox.style.left = "50%";
+        summaryBox.style.transform = "translate(-50%, -50%)";
+        summaryBox.style.padding = "20px";
+        summaryBox.style.borderRadius = "10px";
+        summaryBox.style.backgroundColor = "#fff";
+        summaryBox.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        summaryBox.style.zIndex = "1000";
+        summaryBox.style.textAlign = "center";
+        summaryBox.style.width = "80%";
+        summaryBox.style.maxWidth = "400px";
+
+        // 顯示分數和連擊
+        summaryBox.innerHTML = `
+    <h2>時間到！</h2>
+    <p>您的分數：<strong>${score}</strong></p>
+    <p>最高連擊：<strong>${combo}</strong></p>
+    <p>錯誤題目：</p>
+    <div style="max-height: 150px; overflow-y: auto; text-align: left;">
+      ${errorPool
+        .map(
+          (item) => `
+        <div style="margin-bottom: 5px;">
+          <span style="font-size: 1.2em;">${item.kana}</span>
+          <span style="margin: 0 8px;">→</span>
+          <span style="color: #666;">${item.romaji}</span>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+    <div style="margin-top: 20px;">
+      <button id="closeButton" style="padding: 10px 20px; margin-right: 10px; background: var(--error-color); color: #fff; border: none; border-radius: 5px; cursor: pointer;">關閉</button>
+      <button id="nextLevelButton" style="padding: 10px 20px; background: var(--primary-color); color: #fff; border: none; border-radius: 5px; cursor: pointer;">下一關</button>
+    </div>
+  `;
+
+        document.body.appendChild(summaryBox);
+
+        // 關閉按鈕事件
+        document.getElementById("closeButton").addEventListener("click", () => {
+          summaryBox.remove();
+        });
+
+        // 下一關按鈕事件
+        document
+          .getElementById("nextLevelButton")
+          .addEventListener("click", () => {
+            summaryBox.remove();
+            restartGame(); // 繼續按照當前模式進行下一關
+          });
+        // errorPool.push(currentKana);
+        // combo = 0;
+        // updateScore();
+        // updatePoolDisplays();
+
+        // nextQuestion();
+      }
+
+      // 鼓励语句库
+      const ENCOURAGEMENTS = [
+        "别气馁！再试一次～",
+        "差一点点就对了！",
+        "这个有点难，慢慢来～",
+        "记住这个下次就能答对啦！",
+        "错误是学习的好机会！",
+        "你已经很棒了，继续加油！",
+      ];
+
+      // 在checkAnswer函数中修改反馈部分
+      function checkAnswer() {
+        if (
+          document.getElementById("difficulty").value !== "easy" &&
+          timeLeft <= 0
+        ) {
+          return;
+        }
+        const feedback = document.getElementById("feedback");
+        const encouragement = document.getElementById("encouragement");
+        const userAnswer = document
+          .getElementById("answer")
+          .value.trim()
+          .toLowerCase();
+        const testType = document.getElementById("testType").value;
+        const correctAnswer =
+          testType === "kana2romaji" ? currentKana.romaji : currentKana.kana;
+
+        // 清除之前的动画
+        feedback.classList.remove("feedback-show");
+        void feedback.offsetWidth; // 触发重绘
+
+        if (userAnswer === correctAnswer) {
+          feedback.textContent = "🎉 完全正确！";
+          feedback.className = "feedback-message correct-feedback";
+          encouragement.textContent = "保持这个势头！";
+          handleCorrect();
+        } else {
+          const randomIndex = Math.floor(Math.random() * ENCOURAGEMENTS.length);
+          feedback.innerHTML = `❌ 正确答案是：<strong>${correctAnswer}</strong>`;
+          encouragement.textContent = ENCOURAGEMENTS[randomIndex];
+          feedback.className = "feedback-message error-feedback";
+          handleWrong();
+        }
+
+        // 显示反馈
+        feedback.classList.add("feedback-show");
+
+        // 3秒后淡化提示
+        setTimeout(() => {
+          feedback.classList.remove("feedback-show");
+        }, 3000);
+      }
+
+      function handleCorrect() {
+        score += 10 + combo * 2;
+        combo++;
+        correctPool.push(currentKana);
+        practiceQueue = practiceQueue.filter(
+          (k) => k.kana !== currentKana.kana
+        );
+        updateScore();
+        updatePoolDisplays();
+
+        // 仅当时间未用完时继续下一题
+        if (
+          timeLeft > 0 ||
+          document.getElementById("difficulty").value === "easy"
+        ) {
+          nextQuestion();
+        }
+      }
+
+      function handleWrong() {
+        combo = 0;
+        errorPool.push(currentKana);
+        practiceQueue.unshift(currentKana); // 重新加入队列
+        updateScore();
+        updatePoolDisplays();
+        nextQuestion();
+      }
+
+      function nextQuestion() {
+        // 仅在还有时间或简单模式时继续
+        if (
+          timeLeft > 0 ||
+          document.getElementById("difficulty").value === "easy"
+        ) {
+          getNextKana();
+          updateDisplay();
+          document.getElementById("answer").value = "";
+        }
+      }
+
+      function updateDisplay() {
+        const display = document.getElementById("kana-display");
+        const testType = document.getElementById("testType").value;
+        display.textContent =
+          testType === "kana2romaji" ? currentKana.kana : currentKana.romaji;
+        display.style.animation = "flip 0.6s ease-out";
+      }
+
+      function updateScore() {
+        document.getElementById("score").textContent = score;
+        document.getElementById("combo").textContent = combo;
+        document.getElementById("correct-count").textContent =
+          correctPool.length;
+        document.getElementById("error-count").textContent = errorPool.length;
+      }
+
+      function updatePoolDisplays() {
+        updatePool("correct-list", correctPool);
+        updatePool("error-list", errorPool);
+      }
+
+      function updatePool(elementId, pool) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = [...new Set(pool)] // 去重
+          .map(
+            (item) => `
+                    <div class="kana-item">
+                        <span style="font-size:1.2em">${item.kana}</span>
+                        <span style="margin:0 8px">→</span>
+                        <span style="color:#666">${item.romaji}</span>
+                    </div>
+                `
+          )
+          .join("");
+      }
+
+      function restartGame() {
+        clearInterval(timer);
+        initGame();
+      }
+
+      // 初始化时创建行选择器
+      initRowSelector();
+      // 初始化游戏
+      initGame();
+      document.getElementById("answer").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") checkAnswer();
+      });
+      document
+        .querySelectorAll("select, input[type=checkbox]")
+        .forEach((el) => el.addEventListener("change", restartGame));
+      document
+        .getElementById("kanaType")
+        .addEventListener("change", restartGame);
+      document.querySelector('button[onclick="restartGame()"]').onclick =
+        showRestartDialog;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+{{- $pages := .pages -}}
+{{- $displayTags := .displayTags -}}
+{{- $paginator := .paginator -}}
+
+{{- if gt (len $pages) 0 -}}
+<div class="hx:grid hx:grid-cols-1 hx:md:grid-cols-2 hx:lg:grid-cols-2" style="gap: 2rem;">
+  {{- range $paginator.Pages }}
+  <a href="{{ .RelPermalink }}"
+    class="hx:group hx:block hx:p-6 hx:bg-gray-50 hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:bg-gray-100 hx:dark:hover:bg-gray-700 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:transition-all hx:duration-200 hx:hover:shadow-lg hx:h-full hx:flex hx:flex-col">
+    <div class="hx:flex hx:items-start hx:justify-between hx:mb-3">
+      <h3
+        class="hx:text-lg hx:font-semibold hx:text-gray-900 hx:dark:text-gray-100 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:line-clamp-2">
+        {{ .Title }}</h3>
+      <svg
+        class="hx:flex-shrink-0 hx:w-5 hx:h-5 hx:text-gray-400 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:transition-colors hx:ml-2 hx:mt-1"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </div>
+
+    {{ if $displayTags }}
+    {{- with .Params.tags }}
+    <div class="hx:flex hx:flex-wrap hx:gap-2 hx:mb-3">
+      {{- range . }}
+      <span
+        class="hx:px-2 hx:py-1 hx:text-xs hx:bg-primary-100 hx:dark:bg-primary-900/30 hx:text-primary-700 hx:dark:text-primary-300 hx:rounded">{{
+        . }}</span>
+      {{- end }}
+    </div>
+    {{- end }}
+    {{ end }}
+
+    <p class="hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:mb-4 hx:line-clamp-3 hx:flex-grow">{{ partial
+      "utils/page-description" . }}</p>
+
+    <div
+      class="hx:flex hx:items-center hx:justify-between hx:pt-4 hx:border-t hx:border-gray-200 hx:dark:border-neutral-800 hx:mt-auto">
+      <time class="hx:text-xs hx:text-gray-500 hx:dark:text-gray-500">{{ partial "utils/format-date" .Date }}</time>
+      <span
+        class="hx:text-sm hx:text-primary-600 hx:dark:text-primary-400 hx:font-medium hx:group-hover:underline hx:flex hx:items-center hx:gap-1">
+        阅读更多
+        <svg class="hx:w-4 hx:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
+      </span>
+    </div>
+  </a>
+  {{- end }}
+</div>
+{{- else }}
+<div class="hx:mt-8 hx:p-12 hx:text-center hx:bg-gray-50 hx:dark:bg-gray-800 hx:rounded-lg">
+  <svg class="hx:mx-auto hx:w-12 hx:h-12 hx:text-gray-400 hx:mb-4" fill="none" stroke="currentColor"
+    viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+    </path>
+  </svg>
+  <p class="hx:text-gray-500 hx:dark:text-gray-400 hx:text-lg">暂无文章</p>
+  <p class="hx:text-gray-400 hx:dark:text-gray-500 hx:text-sm hx:mt-2">敬请期待更多精彩内容</p>
+</div>
+{{- end -}}

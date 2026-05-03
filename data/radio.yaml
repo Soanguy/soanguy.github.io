@@ -1,0 +1,49 @@
+# Radio 播放列表示例
+
+# 中国电台示例
+
+- title: "音乐之声"
+  description: "24小时流行音乐播放"
+  stream_url: "https://example.com/music.mp3"
+  location: "北京，中国"
+  website_url: "https://musicradio.com"
+
+- title: "交通广播"
+  description: "实时交通信息和音乐"
+  stream_url: "https://example.com/traffic.mp3"
+  location: "上海，中国"
+  website_url: "https://trafficradio.com"
+
+- title: "新闻广播"
+  description: "24小时新闻播报"
+  stream_url: "https://example.com/news.mp3"
+  location: "广州，中国"
+  website_url: "https://newsradio.com"
+
+# 国际电台示例
+
+- title: "BBC World Service"
+  description: "国际新闻和时事"
+  stream_url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service"
+  location: "London, UK"
+  website_url: "https://www.bbc.co.uk/worldserviceradio"
+
+- title: "Jazz FM"
+  description: "Smooth jazz and soul"
+  stream_url: "https://edge-bauerall-01-gos2.sharp-stream.com/jazz.mp3"
+  location: "London, UK"
+  website_url: "https://www.jazzfm.com"
+
+# 音乐流示例
+
+- title: "Lo-Fi Beats"
+  description: "放松的 Lo-Fi 音乐"
+  stream_url: "https://streams.ilovemusic.de/iloveradio17.mp3"
+  location: "Online"
+  website_url: "https://ilovemusic.de"
+
+- title: "Chillout Lounge"
+  description: "轻松的环境音乐"
+  stream_url: "https://streams.radio.co/s2b2b68ee5/listen"
+  location: "Online"
+  website_url: "https://chillout.com"

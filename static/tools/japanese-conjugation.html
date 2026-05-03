@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+
+  <head>
+    <title>日语词性分析和活用示例工具</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      :root {
+        --bg-color: #f9fafb;
+        --text-color: #1f2937;
+        --primary-color: #2563eb;
+        --secondary-color: #4f46e5;
+        --card-bg: #ffffff;
+        --border-color: #e5e7eb;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+        --radius-lg: 12px;
+        --radius-md: 8px;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #1f2937;
+        --text-color: #f9fafb;
+        --primary-color: #3b82f6;
+        --secondary-color: #818cf8;
+        --card-bg: #374151;
+        --border-color: #4b5563;
+      }
+
+      body {
+        background: var(--bg-color);
+        color: var(--text-color);
+        transition: background 0.3s ease, color 0.3s ease;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+        font-family: "Soen Grotesk Var SemiLight", "榫黑体可变", system-ui, -apple-system, sans-serif;
+        font-weight: 300;
+        line-height: 1.6;
+      }
+
+      .container {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        margin: 2rem 0;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .theme-toggle {
+        position: fixed;
+        right: 2rem;
+        top: 2rem;
+        z-index: 1000;
+        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-md);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-sm);
+        font-weight: 500;
+      }
+
+      .theme-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .search-box {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      input {
+        flex: 1;
+        padding: 12px;
+        width: 80%;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      button.analyze-btn {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.875rem 1.75rem;
+        border-radius: var(--radius-md);
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      button.analyze-btn:hover {
+        background: var(--secondary-color);
+        transform: translateY(-1px);
+      }
+
+      .token-card {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        background: var(--card-bg);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s ease;
+      }
+
+      .token-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .surface-form {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        padding-right: 1.5rem;
+        margin-right: 1rem;
+        border-right: 2px solid var(--border-color);
+      }
+
+      .info-tag {
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s ease;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+      }
+
+      .info-tag:hover {
+        transform: translateY(-1px);
+      }
+
+      .pos-noun {
+        background: #60a5fa;
+        color: white;
+      }
+
+      .pos-verb {
+        background: #818cf8;
+        color: white;
+      }
+
+      .pos-adjective {
+        background: #34d399;
+        color: white;
+      }
+
+      .pos-adverb {
+        background: #fbbf24;
+        color: white;
+      }
+
+      .pos-particle {
+        background: #fb7185;
+        color: white;
+      }
+
+      .pos-auxiliary {
+        background: #a78bfa;
+        color: white;
+      }
+
+      .pos-symbol {
+        background: #94a3b8;
+        color: white;
+      }
+
+      .pos-other {
+        background: #627084;
+        color: white;
+      }
+
+      .conjugation-section {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .conjugation-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+        gap: 12px;
+        margin-top: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .conjugation-grid {
+          grid-template-columns: repeat(1, minmax(auto, 1fr));
+        }
+
+        .surface-form {
+          width: 100%;
+        }
+      }
+
+      .conjugation-item {
+        padding: 8px;
+        background: var(--bg-color);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+      }
+
+      .toggle-btn {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        padding: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .toggle-btn:hover {
+        text-decoration: underline;
+      }
+
+      .conjugation-item {
+        position: relative;
+      }
+
+      .conjugation-item.has-extension {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .conjugation-item.has-extension:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .extended-forms-header {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary-color);
+        font-size: 0.9em;
+        transition: all 0.2s ease;
+      }
+
+      .extended-forms-header:hover {
+        background: var(--bg-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .extension-arrow {
+        margin-left: auto;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .extended-forms.active .extension-arrow {
+        transform: rotate(180deg);
+      }
+
+      .no-extension {
+        color: var(--text-color);
+        opacity: 0.6;
+        font-size: 0.85em;
+        padding: 8px 12px;
+        background: var(--card-bg);
+        border-radius: 6px;
+        margin: 4px 0;
+      }
+
+      .base-form {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .base-form:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .extended-forms {
+        display: none;
+        padding-left: 15px;
+        border-left: 2px solid var(--primary-color);
+        margin: 8px 0;
+      }
+
+      .extended-forms.active {
+        display: block;
+      }
+
+      .extended-form-item {
+        font-size: 0.9em;
+        padding: 4px 0;
+        color: var(--text-color);
+      }
+
+      .more-info {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 8px;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .more-info.active {
+        display: grid;
+      }
+
+      .more-info-item {
+        font-size: 0.9rem;
+        padding: 8px;
+        background: var(--bg-color);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>日语词性分析工具</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓 切换主题</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="inputWord" placeholder="输入日语单词/句子（支持回车）" disabled>
+        <button class="analyze-btn" onclick="analyze()" id="analyzeBtn" disabled>分析</button>
+      </div>
+
+      <div id="status">正在初始化分析引擎...</div>
+      <div id="result"></div>
+    </div>
+
+    <script>
+      let tokenizer = null;
+      let currentTheme = 'light';
+
+      const posColors = {
+        '名詞': 'pos-noun',
+        '動詞': 'pos-verb',
+        '形容詞': 'pos-adjective',
+        '副詞': 'pos-adverb',
+        '助詞': 'pos-particle',
+        '助動詞': 'pos-auxiliary',
+        '記号': 'pos-symbol'
+      };
+
+      const conjugationExamples = {
+        '動詞': (base, type) => {
+          const getStem = (base, type) => {
+            const lastChar = base.slice(-1);
+            const stem = base.slice(0, -1);
+            const godanMap = {
+              '未然形': { 'う': 'わ', 'く': 'か', 'ぐ': 'が', 'す': 'さ', 'つ': 'た', 'ぬ': 'な', 'ぶ': 'ば', 'む': 'ま', 'る': 'ら', 'い': 'わ' },
+              '連用形': { 'う': 'い', 'く': 'き', 'ぐ': 'ぎ', 'す': 'し', 'つ': 'ち', 'ぬ': 'に', 'ぶ': 'び', 'む': 'み', 'る': 'り', 'い': 'い' },
+              '命令形': { 'う': 'え', 'く': 'け', 'ぐ': 'げ', 'す': 'せ', 'つ': 'て', 'ぬ': 'ね', 'ぶ': 'べ', 'む': 'め', 'る': 'れ', 'い': 'え' }
+            };
+
+            if (type === '五段') {
+              return {
+                stem,
+                mizen: godanMap.未然形[lastChar] || lastChar,
+                renyou: godanMap.連用形[lastChar] || lastChar,
+                meirei: godanMap.命令形[lastChar] || lastChar
+              };
+            }
+            if (type === '一段') return { stem: stem };
+            if (type === 'サ変') return { stem: base === 'する' ? 'す' : base.replace('する', '') + 'し' };
+            if (type === 'カ変') return { stem: '来' };
+            return { stem: base };
+          };
+
+          const { stem, mizen, renyou, meirei } = getStem(base, type);
+          const conjugations = {
+            '五段': {
+              '未然形': stem + mizen,
+              '連用形': stem + renyou,
+              '終止形': base,
+              '連体形': base,
+              '仮定形': stem + meirei,
+              '命令形': stem + meirei
+            },
+            '一段': {
+              '未然形': stem,
+              '連用形': stem,
+              '終止形': base,
+              '連体形': base,
+              '仮定形': stem + 'れ',
+              '命令形': stem + 'ろ'
+            },
+            'サ変': {
+              '未然形': 'し',
+              '連用形': 'し',
+              '終止形': base,
+              '連体形': base,
+              '仮定形': stem + 'れ',
+              '命令形': 'しろ'
+            },
+            'カ変': {
+              '未然形': '来',
+              '連用形': '来',
+              '終止形': '来る',
+              '連体形': '来る',
+              '仮定形': '来れ',
+              '命令形': '来い'
+            }
+          };
+          return conjugations[type] || {};
+        },
+        '形容詞': (base) => {
+          if (base === 'いい') base = 'よい';
+          const stem = base.slice(0, -1);
+          return {
+            '未然形': stem + 'く',
+            '連用形': stem + 'く',
+            '終止形': base,
+            '連体形': base,
+            '仮定形': stem + 'けれ',
+            // '命令形': stem + 'かれ'
+          };
+        },
+        '形容動詞': (base) => ({
+          '未然形': base,
+          '連用形': base,
+          '終止形': base + 'だ',
+          '連体形': base + 'な',
+          '仮定形': base + 'なら',
+          // '命令形': base + 'であれ'
+        })
+      };
+
+      function generateConjugation(token) {
+        const pos = token.pos.split(',')[0];
+        const typeInfo = token.conjugated_type || '';
+        const baseForm = token.basic_form;
+
+        // 从conjugated_type提取动词类型
+        let verbType = (() => {
+          if (!typeInfo) return '';
+          if (pos === '形容詞') return '形容詞';
+          if (token.pos_detail_1 === '形容動詞語幹') return '形容動詞';
+          const parts = typeInfo.split(/[・・]/);
+          if (parts[0] === '五段' || parts[0] === '一段') return parts[0];
+          if (parts[0] === 'サ変') return 'サ変';
+          if (parts[0] === 'カ変') return 'カ変';
+          return '';
+        })();
+
+        let conjugations = {};
+        try {
+          if (pos === '動詞') {
+            if (!verbType) return '';
+            conjugations = conjugationExamples[pos](baseForm, verbType);
+          } else if (pos === '形容詞') {
+            conjugations = conjugationExamples[pos](baseForm);
+            verbType = '形容詞'; // 明确设置类型
+          } else if (token.pos_detail_1 === '形容動詞語幹') {
+            conjugations = conjugationExamples['形容動詞'](baseForm);
+            verbType = '形容動詞'; // 明确设置类型
+          }
+        } catch (e) {
+          console.error('活用生成错误:', e);
+        }
+
+        return Object.entries(conjugations).map(([form, example]) => {
+          const extendedForms = generateExtendedForms(form, example, verbType);
+          const hasExtensions = extendedForms.length > 0;
+
+          return `
+          <div class="conjugation-item ${hasExtensions ? 'has-extension' : ''}">
+            <div class="base-form" ${hasExtensions ? 'onclick="toggleExtendedForms(this)"' : ''}>
+              <div class="form-header">
+                <strong>${form}</strong>
+                <div>${example}</div>
+              </div>
+              ${hasExtensions ? `
+                <div class="extended-forms-header">
+                  <span>更多活用</span>
+                  <span class="extension-arrow">▼</span>
+                </div>
+              ` : ''}
+            </div>
+            ${hasExtensions ? `
+              <div class="extended-forms">
+                ${extendedForms.map(f => `
+                  <div class="extended-form-item">
+                    <span>${f.name}：</span>
+                    <span>${f.value}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : '<div class="no-extension">无更多活用形</div>'}
+          </div>
+        `;
+        }).join('');
+      }
+
+      function generateExtendedForms(form, base, verbType) {
+        const forms = [];
+        const stem = base.slice(0, -1);
+        const lastChar = base.slice(-1);
+
+        // 通用动词处理
+        if (verbType && ['五段', '一段', 'サ変', 'カ変'].includes(verbType)) {
+          // 未然形扩展
+          if (form === '未然形') {
+            if (verbType === '五段') {
+              forms.push(
+                { name: '否定', value: base + 'ない' },
+                { name: '可能', value: base + 'れる' },
+                { name: '受身', value: base + 'れる' },
+                { name: '使役', value: base + 'せる' },
+                { name: '使役受身', value: base + 'せられる' },
+              );
+            } else if (verbType === '一段') {
+              forms.push(
+                { name: '否定', value: base + 'ない' },
+                { name: '可能', value: base + 'られる' },
+                { name: '受身', value: base + 'られる' },
+                { name: '使役', value: base + 'させる' },
+                { name: '使役受身', value: base + 'させられる' },
+              );
+            } else if (verbType === 'サ変') {
+              forms.push(
+                { name: '否定', value: 'しない' },
+                { name: '可能', value: 'できる' },
+                { name: '使役', value: 'させる' },
+                { name: '受身', value: 'される' },
+                { name: '使役受身', value: 'させられる' }
+              );
+            } else if (verbType === 'カ変') {
+              forms.push(
+                { name: '否定', value: 'こない' },
+                { name: '可能', value: 'こられる' },
+                { name: '使役', value: 'こさせる' },
+                { name: '受身', value: 'こられる' }
+              );
+            }
+          }
+
+          // 连用形扩展
+          if (form === '連用形') {
+            // て形处理
+            const teForm = (() => {
+              if (verbType === '五段') {
+                const teMap = {
+                  'う': 'って', 'つ': 'って', 'る': 'って',
+                  'む': 'んで', 'ぶ': 'んで', 'ぬ': 'んで',
+                  'く': 'いて', 'ぐ': 'いで', 'す': 'して'
+                };
+                return stem + (teMap[lastChar] || 'って');
+              }
+              return base + 'て'; // 一段/サ変/カ変
+            })();
+            forms.push({ name: 'て形', value: teForm });
+
+            // た形处理（与て形规则相同）
+            const taForm = teForm.replace('て', 'た').replace('で', 'だ');
+            forms.push({ name: 'た形', value: taForm });
+
+            // ます形
+            forms.push({ name: '敬体', value: base + 'ます' });
+          }
+
+          // 仮定形扩展
+          if (form === '仮定形') {
+            forms.push({ name: '条件形', value: base + 'ば' });
+          }
+        }
+
+        // 形容词处理
+        if (verbType === '形容詞') {
+          const stem = base === 'いい' ? 'よ' : base.slice(0, -1);
+
+          if (form === '未然形') {
+            forms.push(
+              { name: '否定', value: stem + 'くない' },
+              { name: '过去否定', value: stem + 'くなかった' }
+            );
+          }
+
+          if (form === '連用形') {
+            forms.push(
+              { name: 'て形', value: stem + 'くて' },
+              { name: 'た形', value: stem + 'かった' },
+              { name: '副词化', value: stem + 'く' }
+            );
+          }
+
+          if (form === '仮定形') {
+            forms.push({ name: '条件形', value: stem + 'れば' });
+          }
+        }
+
+        // 形容动词处理
+        if (verbType === '形容動詞') {
+          const stem = base.replace('だ', '');
+
+          if (form === '未然形') {
+            forms.push(
+              { name: '推量形', value: base + 'だろう' },
+              { name: '否定', value: base + 'ではない' }
+            );
+          }
+
+          if (form === '連用形') {
+            forms.push(
+              { name: 'て形', value: base + 'で' },
+              { name: '副词化', value: base + 'に' },
+              { name: '中止形', value: base + 'で' }
+            );
+          }
+
+          if (form === '仮定形') {
+            forms.push({ name: '条件形', value: stem + 'ば' });
+          }
+        }
+
+        return forms;
+      }
+
+
+      // 新增折叠切换函数
+      function toggleExtendedForms(element) {
+        const container = element.closest('.conjugation-item');
+        const extendedForms = container.querySelector('.extended-forms');
+        const arrow = container.querySelector('.extension-arrow');
+
+        if (extendedForms) {
+          extendedForms.classList.toggle('active');
+          arrow.style.transform = extendedForms.classList.contains('active')
+            ? 'rotate(180deg)'
+            : 'none';
+        }
+      }
+
+      function analyze() {
+        const input = document.getElementById('inputWord').value.trim();
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+
+        if (!input) {
+          resultDiv.innerHTML = `<div style="color: var(--text-color);">请输入要分析的内容</div>`;
+          return;
+        }
+
+        try {
+          const tokens = tokenizer.tokenize(input);
+          resultDiv.innerHTML = tokens.map((token) => {
+            const posDetails = [
+              token.pos,
+              token.pos_detail_1,
+              token.pos_detail_2,
+              token.pos_detail_3
+            ].filter(d => d && d !== '*').join(' → ') || '*';
+
+            const mainPos = token.pos.split(',')[0];
+            const posClass = posColors[mainPos] || 'pos-other';
+            const showConjugation = ['動詞', '形容詞'].includes(mainPos) ||
+              token.pos_detail_1 === '形容動詞語幹';
+
+            return `
+            <div class="token-card">
+              <div class="main-info">
+                <span class="surface-form">${token.surface_form}</span>
+                <span class="info-tag ${posClass}">${posDetails}</span>
+                ${token.conjugated_type && token.conjugated_type !== '*' ?
+                `<span class="info-tag pos-verb">${token.conjugated_type}</span>` : ''}
+                ${token.conjugated_form && token.conjugated_form !== '*' ?
+                `<span class="info-tag pos-verb">${token.conjugated_form}</span>` : ''}
+                ${token.pronunciation && token.pronunciation !== '*' ?
+                `<span class="info-tag pos-other">📢 ${token.pronunciation}</span>` : ''}
+              </div>
+
+              ${showConjugation ? `
+              <div class="conjugation-section">
+                <div class="conjugation-grid">
+                  ${generateConjugation(token)}
+                </div>
+              </div>` : ''}
+
+              <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('active')">
+                <span>详细信息</span>
+                <span>▼</span>
+              </button>
+              <div class="more-info">
+                <div class="more-info-item">単語ID: ${token.word_id}</div>
+                <div class="more-info-item">単語タイプ: ${token.word_type}</div>
+                <div class="more-info-item">読み: ${token.reading}</div>
+                <div class="more-info-item">基本形: ${token.basic_form}</div>
+                <div class="more-info-item">品詞分類: ${posDetails}</div>
+                <div class="more-info-item">活用型: ${token.conjugated_type || 'N/A'}</div>
+                <div class="more-info-item">活用形: ${token.conjugated_form || 'N/A'}</div>
+              </div>
+            </div>
+          `;
+          }).join('');
+        } catch (error) {
+          resultDiv.innerHTML = `
+          <div style="color: #ef4444; padding: 1rem; background: var(--card-bg); border-radius: 8px;">
+            <strong>分析错误：</strong>${error.message}<br>
+            <small>输入内容：${input}</small>
+          </div>`;
+        }
+      }
+
+      function initialize() {
+        kuromoji.builder({
+          dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/"
+        }).build((err, newTokenizer) => {
+          const statusDiv = document.getElementById('status');
+          if (err) {
+            statusDiv.innerHTML = `
+            <div style="color: #ef4444;">
+              <strong>初始化失败！</strong><br>
+              错误原因：${err.message}<br>
+              <button onclick="location.reload()" style="margin-top:10px;">刷新重试</button>
+            </div>`;
+            return;
+          }
+
+          tokenizer = newTokenizer;
+          const inputElement = document.getElementById('inputWord');
+          inputElement.disabled = false;
+          document.getElementById('analyzeBtn').disabled = false;
+          statusDiv.innerHTML = "<span style='color: #10b981;'>✓ 分析引擎已就绪</span>";
+
+          inputElement.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') analyze();
+          });
+        });
+      }
+
+      function toggleTheme() {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        localStorage.setItem('theme', currentTheme);
+      }
+
+      // 初始化主题
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      currentTheme = savedTheme;
+
+      if (typeof kuromoji !== 'undefined') {
+        initialize();
+      } else {
+        document.getElementById('status').innerHTML = `
+        <div style="color: #ef4444;">
+          <strong>库加载失败！</strong><br>
+          请检查网络连接或尝试以下方案：<br>
+          1. 使用VPN访问<br>
+          2. 本地部署版本
+        </div>`;
+      }
+    </script>
+  </body>
+
+</html>

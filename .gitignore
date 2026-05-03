@@ -1,0 +1,31 @@
+# Hugo build output
+/public/
+/resources/_gen/
+
+# Hugo cache
+.hugo_build.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.log
+
+# Node modules (if using npm for tools)
+node_modules/
+
+# Other Hugo themes (keep only hextra)
+/themes/kopi/
+/themes/docura/
+/themes/re-terminal/
+/themes/doks/
+/themes/hugo-brewm/
