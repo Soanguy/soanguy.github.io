@@ -6,8 +6,9 @@
 <div class="hx:grid hx:grid-cols-1 hx:md:grid-cols-2 hx:lg:grid-cols-2" style="gap: 2rem;">
   {{- range $paginator.Pages }}
   <a href="{{ .RelPermalink }}"
-    class="hx:group hx:block hx:p-6 hx:bg-gray-50 hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:bg-gray-100 hx:dark:hover:bg-gray-700 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:transition-all hx:duration-200 hx:hover:shadow-lg hx:h-full hx:flex hx:flex-col">
-    <div class="hx:flex hx:items-start hx:justify-between hx:mb-3">
+    class="hx:group hx:block hx:p-6 hx:bg-gray-50 hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:bg-gray-100 hx:dark:hover:bg-gray-700 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:transition-all hx:duration-200 hx:hover:shadow-lg hx:flex hx:flex-col"
+    style="min-height: 320px; max-height: 600px; overflow: hidden;">
+    <div class="hx:flex hx:items-start hx:justify-between" style="margin-bottom: 0.75rem;">
       <h3
         class="hx:text-lg hx:font-semibold hx:text-gray-900 hx:dark:text-gray-100 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:line-clamp-2">
         {{ .Title }}</h3>
@@ -20,7 +21,7 @@
 
     {{ if $displayTags }}
     {{- with .Params.tags }}
-    <div class="hx:flex hx:flex-wrap hx:gap-2 hx:mb-3">
+    <div class="hx:flex hx:flex-wrap hx:gap-2" style="margin-bottom: 0.75rem;">
       {{- range . }}
       <span
         class="hx:px-2 hx:py-1 hx:text-xs hx:bg-primary-100 hx:dark:bg-primary-900/30 hx:text-primary-700 hx:dark:text-primary-300 hx:rounded">{{
@@ -30,7 +31,9 @@
     {{- end }}
     {{ end }}
 
-    <p class="hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:mb-4 hx:line-clamp-3 hx:flex-grow">{{ partial
+    <p class="hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:line-clamp-3 hx:flex-grow hx:overflow-hidden"
+      style="margin-bottom: 1rem;">
+      {{ partial
       "utils/page-description" . }}</p>
 
     <div

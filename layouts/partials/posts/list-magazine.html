@@ -8,13 +8,14 @@
 
 {{- range $featured }}
 <a href="{{ .RelPermalink }}"
-  class="hx:group hx:block hx:p-6 hx:bg-transparent hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:hover:shadow-lg hx:transition-all hx:duration-200">
+  class="hx:group hx:block hx:p-6 hx:bg-transparent hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:hover:shadow-lg hx:transition-all hx:duration-200 hx:flex hx:flex-col"
+  style="min-height: 280px; max-height: 500px; overflow: hidden;">
   <div
     class="hx:absolute hx:top-0 hx:right-0 hx:w-32 hx:h-32 hx:bg-primary-100 hx:dark:bg-primary-900/20 hx:rounded-bl-full hx:opacity-50">
   </div>
 
-  <div class="hx:relative">
-    <div class="hx:flex hx:items-center hx:gap-2 hx:mb-4">
+  <div class="hx:relative hx:flex-grow">
+    <div class="hx:flex hx:items-center hx:gap-2" style="margin-bottom: 1rem;">
       <span
         class="hx:px-3 hx:py-1 hx:text-xs hx:font-bold hx:bg-primary-600 hx:text-white hx:rounded-full hx:shadow-lg">
         ✨ 最新文章
@@ -31,24 +32,26 @@
     </div>
 
     <h2
-      class="hx:text-3xl hx:font-bold hx:text-gray-900 hx:dark:text-gray-100 hx:mb-4 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:transition-colors hx:leading-tight">
+      class="hx:font-bold hx:text-gray-900 hx:dark:text-gray-100 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:transition-colors hx:leading-tight"
+      style="margin-bottom: 1rem; font-size: 1.875rem; line-height: 2.25rem;">
       {{ .Title }}</h2>
 
-    <p class="hx:text-gray-600 hx:dark:text-gray-400 hx:mb-6 hx:text-lg hx:leading-relaxed">{{ partial
+    <p class="hx:text-gray-600 hx:dark:text-gray-400 hx:leading-relaxed hx:line-clamp-3 hx:overflow-hidden"
+      style="margin-bottom: 1.5rem; font-size: 1.125rem; line-height: 1.75rem;">
+      {{ partial
       "utils/page-description" . }}</p>
-
-    <div
-      class="hx:flex hx:items-center hx:justify-between hx:pt-4 hx:border-t hx:border-primary-200 hx:dark:border-neutral-800">
-      <time class="hx:text-sm hx:text-gray-500 hx:dark:text-gray-400">{{ partial "utils/format-date" .Date }}</time>
-      <span
-        class="hx:text-primary-600 hx:dark:text-primary-400 hx:font-semibold hx:group-hover:underline hx:flex hx:items-center hx:gap-2 hx:transition-colors">
-        阅读全文
-        <svg class="hx:w-5 hx:h-5 hx:group-hover:translate-x-1 hx:transition-transform" fill="none"
-          stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-        </svg>
-      </span>
-    </div>
+  </div>
+  <div
+    class="hx:flex hx:items-center hx:justify-between hx:pt-4 hx:border-t hx:border-primary-200 hx:dark:border-neutral-800 hx:mt-auto">
+    <time class="hx:text-sm hx:text-gray-500 hx:dark:text-gray-400">{{ partial "utils/format-date" .Date }}</time>
+    <span
+      class="hx:text-primary-600 hx:dark:text-primary-400 hx:font-semibold hx:group-hover:underline hx:flex hx:items-center hx:gap-2 hx:transition-colors">
+      阅读全文
+      <svg class="hx:w-5 hx:h-5 hx:group-hover:translate-x-1 hx:transition-transform" fill="none" stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+      </svg>
+    </span>
   </div>
 </a>
 {{- end }}
@@ -67,8 +70,9 @@
   <div class="hx:grid hx:grid-cols-1 hx:md:grid-cols-2" style="gap: 2rem;">
     {{- range $rest }}
     <a href="{{ .RelPermalink }}"
-      class="hx:group hx:block hx:p-6 hx:bg-transparent hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:hover:shadow-lg hx:transition-all hx:duration-200">
-      <div class="hx:flex hx:items-start hx:justify-between hx:mb-3">
+      class="hx:group hx:block hx:p-6 hx:bg-transparent hx:dark:bg-gray-800 hx:rounded-lg hx:border hx:border-gray-200 hx:dark:border-neutral-800 hx:hover:border-primary-300 hx:dark:hover:border-primary-600 hx:hover:shadow-lg hx:transition-all hx:duration-200 hx:flex hx:flex-col"
+      style="min-height: 240px; max-height: 450px; overflow: hidden;">
+      <div class="hx:flex hx:items-start hx:justify-between" style="margin-bottom: 0.75rem;">
         <h4
           class="hx:text-xl hx:font-semibold hx:text-gray-900 hx:dark:text-gray-100 hx:group-hover:text-primary-600 hx:dark:group-hover:text-primary-400 hx:flex-1 hx:transition-colors">
           {{ .Title }}</h4>
@@ -76,7 +80,7 @@
 
       {{ if $displayTags }}
       {{- with .Params.tags }}
-      <div class="hx:flex hx:flex-wrap hx:gap-2 hx:mb-3">
+      <div class="hx:flex hx:flex-wrap hx:gap-2" style="margin-bottom: 0.75rem;">
         {{- range first 3 . }}
         <span
           class="hx:px-2 hx:py-1 hx:text-xs hx:bg-gray-100 hx:dark:bg-gray-700 hx:rounded hx:text-gray-600 hx:dark:text-gray-400">{{
@@ -86,10 +90,13 @@
       {{- end }}
       {{ end }}
 
-      <p class="hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:mb-4 hx:line-clamp-2">{{ partial
+      <p class="hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:line-clamp-2 hx:flex-grow hx:overflow-hidden"
+        style="margin-bottom: 1rem;">
+        {{ partial
         "utils/page-description" . }}</p>
 
-      <div class="hx:flex hx:items-center hx:justify-between hx:text-xs hx:text-gray-500 hx:dark:text-gray-500">
+      <div
+        class="hx:flex hx:items-center hx:justify-between hx:text-xs hx:text-gray-500 hx:dark:text-gray-500 hx:pt-4 hx:border-t hx:border-gray-200 hx:dark:border-neutral-800 hx:mt-auto">
         <time>{{ partial "utils/format-date" .Date }}</time>
         <span
           class="hx:text-primary-600 hx:dark:text-primary-400 hx:font-medium hx:group-hover:underline hx:flex hx:items-center hx:gap-1">
