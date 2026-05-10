@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIPI人格测评 | 红研教育</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fontsapi.zeoseven.com/415/main/result.css" onload="this.rel='stylesheet'" rel="preload"
+      as="style" crossorigin />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Frex Sans GB VF", "Inter", sans-serif;
+        background: linear-gradient(135deg, #fffef7 0%, #fef8f0 100%);
+        color: #1e1e2a;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      :root {
+        --primary-red: #9b1d2c;
+        --primary-dark: #7a141f;
+        --gold-accent: #d4af37;
+        --light-bg: #fef8f0;
+        --card-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        color: var(--primary-red);
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      .progress-bar {
+        background: #f0e2d0;
+        border-radius: 10px;
+        height: 8px;
+        margin: 1.5rem 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        background: linear-gradient(90deg, var(--primary-red), var(--gold-accent));
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 10px;
+      }
+
+      .info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+      }
+
+      .info-card h3 {
+        color: var(--primary-red);
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #f0e2d0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-red);
+        background: #fef8f0;
+      }
+
+      .question-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s ease;
+      }
+
+      .question-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .question-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .question-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-red);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .question-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e1e2a;
+      }
+
+      .options-horizontal {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .option-circle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+        flex: 1;
+      }
+
+      .option-circle input {
+        display: none;
+      }
+
+      .circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #f0e2d0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        background: white;
+      }
+
+      .option-circle:hover .circle {
+        border-color: var(--primary-red);
+        background: #fef8f0;
+      }
+
+      .option-circle.selected .circle {
+        background: var(--primary-red);
+        border-color: var(--primary-red);
+        color: white;
+        transform: scale(1.1);
+      }
+
+      .option-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, var(--primary-red), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(155, 29, 44, 0.3);
+      }
+
+      .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .result-section {
+        display: none;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .result-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border-left: 4px solid var(--primary-red);
+      }
+
+      .result-title {
+        font-size: 1.4rem;
+        color: var(--primary-red);
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .score-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .score-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-red);
+      }
+
+      .score-bar {
+        flex: 1;
+        height: 12px;
+        background: #f0e2d0;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-red), var(--gold-accent));
+        transition: width 1s ease;
+      }
+
+      .score-level {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .score-level.low {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .score-level.medium {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .score-level.high {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .result-description {
+        color: #555;
+        margin-bottom: 1rem;
+        line-height: 1.8;
+      }
+
+      .recommendation {
+        background: #fef8f0;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid var(--gold-accent);
+      }
+
+      .recommendation-title {
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .restart-btn {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background: white;
+        color: var(--primary-red);
+        border: 2px solid var(--primary-red);
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+      }
+
+      .restart-btn:hover {
+        background: var(--primary-red);
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .question-card {
+          padding: 1.2rem 1.5rem;
+        }
+
+        .circle {
+          width: 35px;
+          height: 35px;
+          font-size: 0.85rem;
+        }
+
+        .option-label {
+          font-size: 0.65rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-brain"></i> TIPI人格测评</h1>
+        <p>通过10道题目了解您的人格特质，为您匹配最适合的辅导方案</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="progressText">已完成: 0 / 10</p>
+      </div>
+
+      <form id="tipiForm">
+        <div class="info-card">
+          <h3><i class="fas fa-user"></i> 基本信息</h3>
+          <div class="form-group">
+            <label for="userName">姓名 *</label>
+            <input type="text" id="userName" name="userName" required placeholder="请输入您的姓名">
+          </div>
+          <div class="form-group">
+            <label for="userContact">联系方式 *</label>
+            <input type="text" id="userContact" name="userContact" required placeholder="请输入手机号或邮箱">
+            <small id="contactHint" style="color: #999; font-size: 0.85rem; margin-top: 0.3rem; display: block;">
+              支持手机号（11位数字）或邮箱格式
+            </small>
+          </div>
+        </div>
+
+        <div class="question-card" id="q1">
+          <div class="question-header">
+            <span class="question-number">1</span>
+            <div class="question-text">外向的、热情的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q1" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q2">
+          <div class="question-header">
+            <span class="question-number">2</span>
+            <div class="question-text">挑剔的、好斗的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q2" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q3">
+          <div class="question-header">
+            <span class="question-number">3</span>
+            <div class="question-text">可靠的、自律的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q3" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q4">
+          <div class="question-header">
+            <span class="question-number">4</span>
+            <div class="question-text">焦急的、容易烦躁的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q4" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q5">
+          <div class="question-header">
+            <span class="question-number">5</span>
+            <div class="question-text">喜欢新体验的、难懂的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q5" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q6">
+          <div class="question-header">
+            <span class="question-number">6</span>
+            <div class="question-text">保守的、安静的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q6" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q7">
+          <div class="question-header">
+            <span class="question-number">7</span>
+            <div class="question-text">富有同情心的、温暖的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q7" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q8">
+          <div class="question-header">
+            <span class="question-number">8</span>
+            <div class="question-text">杂乱无章、粗心的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q8" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q9">
+          <div class="question-header">
+            <span class="question-number">9</span>
+            <div class="question-text">镇定的、情绪稳定的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q9" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-card" id="q10">
+          <div class="question-header">
+            <span class="question-number">10</span>
+            <div class="question-text">传统的、缺乏创造性的</div>
+          </div>
+          <div class="options-horizontal">
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="1">
+              <div class="circle">1</div>
+              <span class="option-label">强烈<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="2">
+              <div class="circle">2</div>
+              <span class="option-label">适度<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="3">
+              <div class="circle">3</div>
+              <span class="option-label">有点<br>不同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="4">
+              <div class="circle">4</div>
+              <span class="option-label">两者<br>都不是</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="5">
+              <div class="circle">5</div>
+              <span class="option-label">有点<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="6">
+              <div class="circle">6</div>
+              <span class="option-label">适度<br>同意</span>
+            </label>
+            <label class="option-circle">
+              <input type="radio" name="Q10" value="7">
+              <div class="circle">7</div>
+              <span class="option-label">强烈<br>同意</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+          <i class="fas fa-paper-plane"></i> 提交测评
+        </button>
+      </form>
+
+      <div class="result-section" id="resultSection">
+        <div class="header" style="padding: 1.5rem 2rem;">
+          <h1 style="font-size: 2rem; margin-bottom: 0.3rem;">TIPI人格测评 · 测评结果</h1>
+          <p id="resultUserName" style="font-size: 1rem; color: #666;"></p>
+        </div>
+
+        <div id="resultsContainer"></div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="restart-btn" onclick="location.reload()">
+            <i class="fas fa-redo"></i> 重新测评
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = 'https://eashyyulgfphrihovuvj.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_CkLnJ56DxG_y6-G1bEZteg_F7VrO-_O';
+
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const optionCircles = document.querySelectorAll('.option-circle');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+      const submitBtn = document.getElementById('submitBtn');
+      const tipiForm = document.getElementById('tipiForm');
+      const resultSection = document.getElementById('resultSection');
+      const resultsContainer = document.getElementById('resultsContainer');
+
+      let answeredQuestions = new Set();
+
+      optionCircles.forEach(option => {
+        option.addEventListener('click', function () {
+          const input = this.querySelector('input');
+          const questionCard = this.closest('.question-card');
+          const questionId = questionCard.id;
+
+          const allOptions = questionCard.querySelectorAll('.option-circle');
+          allOptions.forEach(opt => opt.classList.remove('selected'));
+
+          this.classList.add('selected');
+          input.checked = true;
+
+          answeredQuestions.add(questionId);
+          updateProgress();
+        });
+      });
+
+      function validateContact(contact) {
+        const phoneRegex = /^1[3-9]\d{9}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (phoneRegex.test(contact)) {
+          return { valid: true, type: 'phone' };
+        } else if (emailRegex.test(contact)) {
+          return { valid: true, type: 'email' };
+        } else {
+          return { valid: false, type: null };
+        }
+      }
+
+      function updateProgress() {
+        const progress = (answeredQuestions.size / 10) * 100;
+        progressFill.style.width = progress + '%';
+        progressText.textContent = `已完成: ${answeredQuestions.size} / 10`;
+
+        const userName = document.getElementById('userName').value.trim();
+        const userContact = document.getElementById('userContact').value.trim();
+        const contactHint = document.getElementById('contactHint');
+        const contactInput = document.getElementById('userContact');
+
+        if (userContact) {
+          const validation = validateContact(userContact);
+          if (validation.valid) {
+            contactHint.textContent = validation.type === 'phone' ? '✓ 手机号格式正确' : '✓ 邮箱格式正确';
+            contactHint.style.color = '#28a745';
+            contactInput.style.borderColor = '#28a745';
+          } else {
+            contactHint.textContent = '✗ 请输入正确的手机号或邮箱格式';
+            contactHint.style.color = '#dc3545';
+            contactInput.style.borderColor = '#dc3545';
+          }
+        } else {
+          contactHint.textContent = '支持手机号（11位数字）或邮箱格式';
+          contactHint.style.color = '#999';
+          contactInput.style.borderColor = '#f0e2d0';
+        }
+
+        const validation = validateContact(userContact);
+        if (answeredQuestions.size === 10 && userName && validation.valid) {
+          submitBtn.disabled = false;
+        } else {
+          submitBtn.disabled = true;
+        }
+      }
+
+      document.getElementById('userName').addEventListener('input', updateProgress);
+      document.getElementById('userContact').addEventListener('input', updateProgress);
+
+      tipiForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在保存...';
+
+        const formData = new FormData(tipiForm);
+        const userName = formData.get('userName');
+        const userContact = formData.get('userContact');
+        const answers = {};
+
+        for (let [key, value] of formData.entries()) {
+          if (key.startsWith('Q')) {
+            answers[key] = parseInt(value);
+          }
+        }
+
+        const scores = calculateScores(answers);
+
+        const exportData = {
+          timestamp: new Date().toISOString(),
+          userName,
+          userContact,
+          answers,
+          scores
+        };
+
+        try {
+          const { data, error } = await supabaseClient
+            .from('tipi_results')
+            .insert([
+              {
+                user_name: userName,
+                user_contact: userContact,
+                answers: answers,
+                scores: scores
+              }
+            ]);
+
+          if (error) {
+            console.error('保存失败:', error);
+            alert('数据保存失败，请检查网络连接后重试。');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交测评';
+            return;
+          }
+
+          console.log('保存成功:', data);
+          displayResults(userName, scores);
+          localStorage.setItem('tipi_latest', JSON.stringify(exportData));
+
+        } catch (err) {
+          console.error('保存出错:', err);
+          alert('数据保存失败，请检查网络连接后重试。');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交测评';
+        }
+      });
+
+      function reverseScore(value) {
+        return 8 - value;
+      }
+
+      function calculateScores(answers) {
+        return {
+          Extraversion: (answers.Q1 + reverseScore(answers.Q6)) / 2,
+          Agreeableness: (reverseScore(answers.Q2) + answers.Q7) / 2,
+          Conscientiousness: (answers.Q3 + reverseScore(answers.Q8)) / 2,
+          EmotionalStability: (reverseScore(answers.Q4) + answers.Q9) / 2,
+          Openness: (answers.Q5 + reverseScore(answers.Q10)) / 2
+        };
+      }
+
+      function getLevel(score) {
+        if (score < 4) return 'low';
+        if (score < 5.5) return 'medium';
+        return 'high';
+      }
+
+      function getLevelText(level) {
+        const texts = {
+          low: '偏低',
+          medium: '中等',
+          high: '偏高'
+        };
+        return texts[level];
+      }
+
+      const dimensionData = {
+        Extraversion: {
+          name: '外向性',
+          icon: 'fa-comments',
+          descriptions: {
+            low: '你喜欢安静、独立的学习氛围。小组讨论或频繁互动可能让你感到消耗。你更倾向于自己先思考，再与老师进行深度的一对一交流。',
+            medium: '你在社交和学习互动中灵活自如，既能参与讨论，也能安心独学。你不排斥交流，但也不依赖它来获取能量。',
+            high: '你乐于表达、喜欢在交流中碰撞想法。小组学习或问答式课堂会让你状态更好，长时间的独自闷学可能让你效率下降。'
+          },
+          recommendations: {
+            low: '适合你的老师：温和耐心，善于倾听。课堂形式以独立思考为主，老师会在你准备好时进行一对一深度交流，不会强迫你频繁发言。',
+            medium: '你适应性强，大多数老师都能和你配合得很好。可以根据自己的学习节奏选择老师。',
+            high: '适合你的老师：活泼开朗，喜欢互动讨论。课堂会有很多头脑风暴和小组讨论环节，让你在交流中碰撞出思维的火花。'
+          }
+        },
+        Agreeableness: {
+          name: '宜人性',
+          icon: 'fa-heart',
+          descriptions: {
+            low: '你倾向于坚持自己的观点，对教学安排或答案常有疑问，不害怕质疑权威。这种特质在思辨性学科（如党史党建）中是优势，但可能给指导关系带来张力。',
+            medium: '你通常愿意配合老师的安排，即使有不同意见也会礼貌表达。你们的关系大概率会平稳和谐。',
+            high: '你非常重视和谐，很少与老师发生冲突，乐于接受指导。但有时可能因为过于顺从而不表达真实困惑。'
+          },
+          recommendations: {
+            low: '适合你的老师：耐心包容，善于引导。老师会尊重你的独立思考，用讨论而非说教的方式帮助你理解，让你在思辨中成长。',
+            medium: '你善于与老师沟通协作，几乎所有老师都能和你建立良好的师生关系。建议在开始时主动分享你的学习偏好。',
+            high: '你容易与老师建立信任关系。建议选择善于鼓励和主动关心的老师，这样你会在学习中更有安全感，敢于表达真实想法。'
+          }
+        },
+        Conscientiousness: {
+          name: '尽责性',
+          icon: 'fa-tasks',
+          descriptions: {
+            low: '你容易在计划执行上拖延，需要外部督促。你可能会忘记完成任务，或者难以坚持长期规划。',
+            medium: '你能够完成大部分计划，但偶尔会放松。你需要一般程度的督促和阶段性的检查。',
+            high: '你极其自律，喜欢自己掌控进度。过度的监督或琐碎的检查可能让你感到束缚。'
+          },
+          recommendations: {
+            low: '适合你的老师：善于规划，乐于督促。老师会帮你制定清晰的学习计划，定期检查进度，在你需要时及时提醒，帮你克服拖延习惯。',
+            medium: '你有一定的自律能力，适合选择能提供适度监督的老师。老师会定期跟进你的学习情况，帮助你保持学习动力。',
+            high: '你自律性强，适合选择给予你充分自主权的老师。老师会尊重你的学习节奏，只在关键节点提供指导，让你自由发挥。'
+          }
+        },
+        EmotionalStability: {
+          name: '情绪稳定性',
+          icon: 'fa-balance-scale',
+          descriptions: {
+            low: '考研压力容易让你焦虑、自我怀疑，或情绪起伏较大。你需要一位情绪稳定的老师来给予安全感和理性引导。',
+            medium: '你能承受一般压力，偶尔会有情绪波动但能较快恢复。',
+            high: '你抗压能力强，很少被外界干扰。即使遇到挫折也能很快调整心态。'
+          },
+          recommendations: {
+            low: '适合你的老师：情绪稳定，善于鼓励。老师会给你充分的安全感，在你焦虑时耐心开导，帮助你建立信心，让你在备考路上不再孤单。',
+            medium: '你能较好地应对学习压力，适合大多数老师。建议选择情绪稳定、善于倾听的老师，这样你在压力大时能得到及时支持。',
+            high: '你心态稳定，抗压能力强。几乎所有老师都能和你配合得很好，你甚至可以帮助其他同学缓解压力，成为学习小组的稳定力量。'
+          }
+        },
+        Openness: {
+          name: '开放性',
+          icon: 'fa-lightbulb',
+          descriptions: {
+            low: '你喜欢固定、清晰的知识框架，对课本外的扩展内容兴趣不大。你希望老师直接告诉你考什么、怎么答，而不是发散讨论。',
+            medium: '你能接受一定程度的拓展，但依然希望主体内容是应试导向的。',
+            high: '你对党史党建的前沿议题、多元史料有好奇心，喜欢有深度的延伸讲解。纯粹的背诵让你觉得枯燥。'
+          },
+          recommendations: {
+            low: '适合你的老师：条理清晰，紧扣考点。老师会用结构化的方式讲解知识，让你清楚知道考试重点，高效备考，不走弯路。',
+            medium: '你既能接受应试内容，也愿意了解一些拓展知识。适合大多数老师，可以根据自己的兴趣选择是否深入了解学术前沿。',
+            high: '适合你的老师：知识广博，喜欢拓展。老师会带你探索党史党建的前沿议题，分享多元史料，让学习变得更有深度和趣味。'
+          }
+        }
+      };
+
+      function displayResults(userName, scores) {
+        tipiForm.style.display = 'none';
+        resultSection.style.display = 'block';
+
+        document.getElementById('resultUserName').textContent = `测评对象：${userName}`;
+
+        let profileHTML = `
+          <div class="result-card" style="background: linear-gradient(135deg, #fff 0%, #fef8f0 100%);">
+            <div class="result-title" style="font-size: 1.6rem; margin-bottom: 1.5rem;">
+              <i class="fas fa-user-circle"></i> 你的五维性格画像
+            </div>
+        `;
+
+        const sortedDimensions = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+        for (let [dimension, score] of sortedDimensions) {
+          const level = getLevel(score);
+          const data = dimensionData[dimension];
+          const percentage = ((score - 1) / 6) * 100;
+
+          let levelIcon = '';
+          let levelColor = '';
+          let levelBg = '';
+
+          if (score >= 6) {
+            levelIcon = ' ✅';
+            levelColor = '#155724';
+            levelBg = '#d4edda';
+          } else if (score < 4) {
+            levelIcon = ' ⚠️';
+            levelColor = '#721c24';
+            levelBg = '#f8d7da';
+          } else {
+            levelIcon = '';
+            levelColor = '#0c5460';
+            levelBg = '#d1ecf1';
+          }
+
+          profileHTML += `
+            <div style="margin-bottom: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600; font-size: 1.05rem;">${data.name}</span>
+                <span style="font-size: 0.95rem; color: ${levelColor};">
+                  <strong>${score.toFixed(1)}</strong> 
+                  <span style="background: ${levelBg}; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem;">
+                    ${getLevelText(level)}${levelIcon}
+                  </span>
+                </span>
+              </div>
+              <div style="background: #f0e2d0; border-radius: 8px; height: 24px; overflow: hidden; position: relative;">
+                <div style="background: linear-gradient(90deg, var(--primary-red), var(--gold-accent)); height: 100%; width: ${percentage}%; transition: width 1s ease;"></div>
+              </div>
+            </div>
+          `;
+        }
+
+        profileHTML += `</div>`;
+
+        let teacherRecommendations = [];
+
+        if (scores.Conscientiousness >= 5.5) {
+          teacherRecommendations.push('需要高结构、计划明确的老师（匹配你的高尽责性）');
+        } else if (scores.Conscientiousness < 4) {
+          teacherRecommendations.push('需要每日督促、任务清单清晰的老师（匹配你的低尽责性）');
+        }
+
+        if (scores.EmotionalStability < 4) {
+          teacherRecommendations.push('需要情绪稳定、耐心包容的老师（匹配你的低情绪稳定性）');
+        }
+
+        if (scores.Extraversion >= 5.5) {
+          teacherRecommendations.push('适合活泼互动、鼓励讨论的老师（匹配你的高外向性）');
+        } else if (scores.Extraversion < 4) {
+          teacherRecommendations.push('适合温和内向、注重一对一交流的老师（匹配你的低外向性）');
+        }
+
+        if (scores.Openness >= 5.5) {
+          teacherRecommendations.push('适合知识广博、喜欢拓展延伸的老师（匹配你的高开放性）');
+        }
+
+        if (scores.Agreeableness < 4) {
+          teacherRecommendations.push('需要耐心、善于引导而非直接否定的老师（匹配你的低宜人性）');
+        }
+
+        let teacherHTML = `
+          <div class="result-card" style="background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border-left: 4px solid var(--gold-accent);">
+            <div class="result-title" style="font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--primary-dark);">
+              <i class="fas fa-chalkboard-teacher"></i> 你的最佳老师画像
+            </div>
+            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+              ${teacherRecommendations.map(rec => `
+                <div style="padding: 0.8rem 0; border-bottom: 1px solid #f0e2d0;">
+                  <span style="color: var(--primary-red); font-weight: 600;">•</span> ${rec}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        let detailsHTML = `
+          <div style="background: white; border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; box-shadow: var(--card-shadow);">
+            <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleDetails()">
+              <h3 style="color: var(--primary-red); margin: 0;">
+                <i class="fas fa-info-circle"></i> 详细分析
+              </h3>
+              <i class="fas fa-chevron-down" id="detailIcon" style="color: var(--primary-red);"></i>
+            </div>
+            <div id="detailContent" style="display: none; margin-top: 1.5rem;">
+        `;
+
+        for (let [dimension, score] of Object.entries(scores)) {
+          const level = getLevel(score);
+          const data = dimensionData[dimension];
+
+          detailsHTML += `
+            <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #f0e2d0;">
+              <h4 style="color: var(--primary-red); margin-bottom: 0.8rem;">
+                <i class="fas ${data.icon}"></i> ${data.name}
+              </h4>
+              <div style="color: #555; line-height: 1.8; margin-bottom: 1rem;">
+                ${data.descriptions[level]}
+              </div>
+              <div style="background: #fef8f0; padding: 1rem; border-radius: 8px; border-left: 3px solid var(--gold-accent);">
+                <strong style="color: var(--primary-dark);">辅导建议：</strong>
+                <span style="color: #666;">${data.recommendations[level]}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        detailsHTML += `
+            </div>
+          </div>
+        `;
+
+        resultsContainer.innerHTML = profileHTML + teacherHTML + detailsHTML;
+      }
+
+      function toggleDetails() {
+        const content = document.getElementById('detailContent');
+        const icon = document.getElementById('detailIcon');
+
+        if (content.style.display === 'none') {
+          content.style.display = 'block';
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-up');
+        } else {
+          content.style.display = 'none';
+          icon.classList.remove('fa-chevron-up');
+          icon.classList.add('fa-chevron-down');
+        }
+      }
+    </script>
+  </body>
+
+</html>
