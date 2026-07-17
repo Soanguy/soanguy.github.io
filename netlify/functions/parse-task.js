@@ -150,7 +150,6 @@ exports.handler = async (event) => {
         const results = Array.isArray(parsed) ? parsed : [parsed];
 
         // 校验每个结果
-        const today = new Date().toISOString().split('T')[0];
         const sanitized = results.map(item => ({
             content: item.content || '未命名任务',
             type: ['practice', 'review', 'recite', 'preview'].includes(item.type) ? item.type : 'practice',
