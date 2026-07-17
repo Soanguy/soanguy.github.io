@@ -45,7 +45,7 @@ exports.handler = async (event) => {
             };
         }
 
-        const apiUrl = process.env.SILICONFLOW_BASE_URL || 'https://api.siliconflow.cn/v1';
+        const apiUrl = process.env.SILICONFLOW_BASE_URL || 'https://api.siliconflow.cn/v1/chat/completions';
         const model = process.env.SILICONFLOW_MODEL || 'THUDM/GLM-Z1-9B-0414';
 
         const today = new Date().toISOString().split('T')[0];
