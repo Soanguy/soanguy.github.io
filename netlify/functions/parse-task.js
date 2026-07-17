@@ -46,6 +46,7 @@ exports.handler = async (event) => {
         }
 
         const apiUrl = process.env.SILICONFLOW_BASE_URL || 'https://api.siliconflow.cn/v1';
+        const model = process.env.SILICONFLOW_MODEL || 'THUDM/GLM-Z1-9B-0414';
 
         const today = new Date().toISOString().split('T')[0];
         const systemPrompt = `你是学习任务解析助手。用户用自然语言描述任务，每行一个，提取信息返回JSON数组。
@@ -89,7 +90,7 @@ exports.handler = async (event) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: process.env.SILICONFLOW_MODEL || 'Qwen/Qwen3-8B',
+                model: model,
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: combinedText }
