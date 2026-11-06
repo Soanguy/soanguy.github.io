@@ -1,7 +1,38 @@
-/* 榫黑体可变字体 */
-html body {
-  font-family: "Soen Grotesk Var SemiLight", "榫黑体可变", system-ui, -apple-system, sans-serif !important;
-  font-weight: 300;
+@font-face {
+  font-family: "ZSFT-cs";
+  src: url("https://fontsapi.zeoseven.com/cs/italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ZSFT-cs";
+  src: url("https://fontsapi.zeoseven.com/cs/main.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+.content {
+  font-family: "Soen Grotesk Var", "榫黑体可变", system-ui, -apple-system, sans-serif;
+}
+
+@layer theme {
+
+  :root,
+  :host {
+    --hx-default-sans-font-family: "Soen Grotesk Var", "榫黑体可变", system-ui, -apple-system, sans-serif;
+    --hx-default-mono-font-family: "ZSFT-cs", "Soen Grotesk Var", ui-monospace, monospace;
+  }
+}
+
+html body,
+code,
+kbd,
+samp,
+pre {
+  font-weight: 400;
 }
 
 /* 噪音效果 - Hextra 主题 */
@@ -38,26 +69,29 @@ html body {
 }
 
 .hand {
-  --min: 40vmin;
-  --hour: 28vmin;
-  margin: 0 auto auto;
+  --len: 40vmin;
+  --hand-color: #60f;
+  position: absolute;
+  /* 指针根部（底边中点）对齐表盘中心：bottom 50% 让底边压在水平中线上，
+     margin-left 抵消边框盒宽度（3vmin + 左右边框各 2vmin）的一半 */
+  left: 50%;
+  bottom: 50%;
+  margin-left: -3.5vmin;
+  box-sizing: border-box;
+  width: 3vmin;
+  height: var(--len);
   border-right: 2vmin solid transparent;
-  border-bottom: var(--min) solid #60f;
+  border-bottom: var(--len) solid var(--hand-color);
   border-left: 2vmin solid transparent;
   border-radius: 2vmin;
-  background-image: linear-gradient(0deg, var(--hextra-bg, #fff) 0%, #60f 100%);
-  width: 3vmin;
-  height: var(--min);
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  background-image: linear-gradient(0deg, var(--hextra-bg, #fff) 0%, var(--hand-color) 100%);
   transform-origin: bottom center;
+  will-change: transform;
 }
 
 #hour .hand {
-  border-bottom: var(--hour) solid #20f;
-  background-image: linear-gradient(0deg, var(--hextra-bg, #fff) 0%, #20f 100%);
-  height: var(--hour);
+  --len: 28vmin;
+  --hand-color: #20f;
 }
 
 @media print {
@@ -67,4 +101,62 @@ html body {
     display: none !important;
   }
 }
+
+.hextra-card,
+.magnetic-card {
+  background-color: color-mix(in oklab, var(--hx-color-primary-300) 10%, transparent);
+  position: relative;
+  /* 只保留光影的过渡，transform 交给 JS 控制 */
+  transition: box-shadow 0.4s ease, border-color 0.4s ease !important;
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+}
+
+/* 镜面扫光（由于是绝对定位，它会跟着卡片一起倾斜） */
+.hextra-card::after,
+.magnetic-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg,
+      transparent 0%,
+      transparent 40%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.1) 55%,
+      transparent 60%,
+      transparent 100%);
+  z-index: 10;
+  background-size: 250% 250%;
+  background-position: 100% 100%;
+  transition: background-position 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  mix-blend-mode: overlay;
+}
+
+/* 悬停时的阴影（移除了 transform，避免与 JS 冲突） */
+.hextra-card:hover,
+.magnetic-card:hover {
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08),
+    0 0 10px -2px rgba(124, 58, 237, 0.1) !important;
+}
+
+.hextra-card:hover::after,
+.magnetic-card:hover::after {
+  background-position: 0% 0%;
+}
+
+/* 夜间模式专属光晕 */
+html.dark .hextra-card:hover,
+html.dark .magnetic-card:hover {
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6),
+    0 0 15px -5px rgba(124, 58, 237, 0.3) !important;
+}
+
+html.dark .hextra-card::after,
+html.dark .magnetic-card::after {
+  mix-blend-mode: screen;
+  opacity: 0.6;
 }

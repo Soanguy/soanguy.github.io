@@ -1,15 +1,15 @@
 baseURL: "https://soanguy.github.io/"
-title: "我的 Hextra 网站"
+title: "Soanguy的笔记"
 theme: hextra
 
 enableRobotsTXT: true
-enableGitInfo: false
+enableGitInfo: true
 hasCJKLanguage: true
 
 outputs:
   home: [html]
-  page: [html, markdown]
-  section: [html, rss, markdown]
+  page: [html]
+  section: [html, rss]
 
 module:
   hugoVersion:
@@ -31,32 +31,40 @@ markup:
 
 menu:
   main:
-    - identifier: docs
-      name: 文档
-      pageRef: /docs
+    - identifier: context
+      name: ConTeXt
+      pageRef: /context
       weight: 1
-    - identifier: posts
-      name: 博客
-      pageRef: /posts
+    - identifier: japanese
+      name: Japanese
+      pageRef: /japanese
       weight: 2
-    - identifier: archives
-      name: 归档
-      pageRef: /archives
+    - identifier: projects
+      name: Projects
+      pageRef: /projects
       weight: 3
-    - identifier: about
-      name: 关于
-      pageRef: /about
+    - identifier: blogs
+      name: Blogs
+      pageRef: /blogs
       weight: 4
-    - name: 搜索
+    - identifier: archives
+      name: Archives
+      pageRef: /archives
       weight: 5
+    - identifier: about
+      name: About
+      pageRef: /about
+      weight: 6
+    - name: 搜索
+      weight: 7
       params:
         type: search
     - name: 主题
-      weight: 6
+      weight: 8
       params:
         type: theme-toggle
     - name: GitHub
-      weight: 7
+      weight: 9
       url: "https://github.com/yourname/yourrepo"
       params:
         icon: github
@@ -69,7 +77,7 @@ params:
   
   # Archives: 归档页面配置
   archives:
-    section: posts  # 指定要归档的 section
+    section: blogs  # 指定要归档的 section
     dateFormat: "01-02"  # 日期格式
 
   banner:
@@ -124,10 +132,16 @@ params:
   page:
     width: normal
     contextMenu:
-      enable: true
+      enable: false
 
   imageZoom:
     enable: true
 
   comments:
+    enable: false
+
+  mermaid:
+    enable: false
+
+  katex:
     enable: false

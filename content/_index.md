@@ -22,8 +22,8 @@ layout: hextra-home
 </div>
 
 <div class="hx:mb-6">
-{{< hextra/hero-button text="开始阅读" link="docs" >}}
-  {{< hextra/hero-button text="博客文章" link="posts" >}}
+{{< hextra/hero-button text="开始阅读" link="context" >}}
+  {{< hextra/hero-button text="博客文章" link="blogs" >}}
 </div>
 
 <div class="hx:mt-6"></div>
